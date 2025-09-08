@@ -1,0 +1,15 @@
+{
+  "name": "general-injury-attach-e75x1",
+  "productName": "general-injury-attach-e75x1",
+  "description": "My Electron application description",
+  "keywords": [],
+  "main": "./main.js",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "37.2.5"
+  }
+}
