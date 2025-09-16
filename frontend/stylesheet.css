@@ -1,3 +1,72 @@
-h1{
-   font-family: 'Helvetica', sans serif;
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Helvetica, sans-serif;
+}
+
+.header {
+    width: 100vw;
+    height: 145px;
+    background: linear-gradient(to right bottom, #DFF2FF 0%, #4285F4 50%, #7051AF 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    margin-right: 50px;
+}
+
+.header .logo {
+    width: 125px;
+    height: auto;
+    margin-right: -20px;
+}
+
+.header-name p {
+    color: white;
+    font-size: 2.75em;
+    margin: 0;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 80px;
+    position: relative;
+    width: 100%;
+    height: auto;
+    margin-top: 130px;
+}
+
+.history-btn, .preferences-btn, .logout-btn {
+    background-color: #69A2FF;
+    color: white;
+    font-size: 1.83em;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 465px;
+    height: 85px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.history-btn:hover,
+.preferences-btn:hover {
+    background-color: #4a86ff;
+    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.3);
+}
+
+.logout-btn {
+    background-color: #F26565;
+}
+
+.logout-btn:hover {
+    background-color: #d94d4d;
+    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.3);
 }
