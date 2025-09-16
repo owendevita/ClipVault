@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>ClipVault | User Preferences</title>
+        <link rel="stylesheet" href="style_preferences.css">
+    </head>
+    <body>
+        <div class="header">
+            <div class="header-content">
+                <a href="index.html" class="back-arrow">&lt;</a>
+                <p>User Preferences</p>
+            </div>
+        </div>
+        <div class="main">
+            <div class="security">
+                <h2>Security</h2>
+                <div class="security-box">
+                    Encryption Algorithm
+                </div>
+            </div>
+
+            <div class="hotkeys">
+                <h2>Hotkeys</h2>
+                <div class="hotkey-row">
+                    <span>Copy Keybind</span>
+                    <button class="hotkey-btn">CTRL + C</button>
+                </div>
+                <div class="hotkey-row">
+                    <span>Paste Keybind</span>
+                    <button class="hotkey-btn">CTRL + V</button>
+                </div>
+            </div>
+            <div class="app-behavior">
+                <h2>App Behavior</h2>
+                <div class="toggle-row">
+                    <span>Store Clipboard History</span>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <span>Notify on Clipboard Change</span>
+                    <label class="switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="toggle-row">
+                    <span>Open ClipVault on Startup</span>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div id="hotkey-popup" class="popup-overlay">
+            <div class="popup-box">
+                <h3>Edit Hotkey</h3>
+                <p id="hotkey-display">Press new key combination...</p>
+                <div class="popup-actions">
+                    <button id="save-hotkey-btn">Save</button>
+                    <button id="cancel-hotkey-btn">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.querySelectorAll(".hotkey-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    document.getElementById("hotkey-popup").style.display = "flex";
+                });
+            });
+
+            function closePopup() {
+                document.getElementById("hotkey-popup").style.display = "none";
+            }
+
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape") closePopup();
+            });
+        </script>
+
+    </body>
+</html>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const popup = document.getElementById("hotkey-popup");
+        const hotkeyDisplay = document.getElementById("hotkey-display");
+        const saveBtn = document.getElementById("save-hotkey-btn");
+        const cancelBtn = document.getElementById("cancel-hotkey-btn");
+
+        let currentCombo = [];
+        let activeButton = null;
+        let savedCombos = new Set();
+
+        const isMac = navigator.platform.toUpperCase().includes("MAC");
+
+        document.querySelectorAll(".hotkey-btn").forEach(btn => {
+            savedCombos.add(btn.textContent.trim());
+
+            btn.addEventListener("click", () => {
+                currentCombo = [];
+                hotkeyDisplay.textContent = "Press new key combination...";
+                activeButton = btn;
+                popup.style.display = "flex";
+            });
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (popup.style.display !== "flex") return;
+
+            e.preventDefault();
+            currentCombo = [];
+
+            if (e.ctrlKey) currentCombo.push("CTRL");
+            if (e.shiftKey) currentCombo.push("SHIFT");
+            if (e.altKey) currentCombo.push("ALT");
+
+            if (e.metaKey) {
+                currentCombo.push(isMac ? "CMD" : "WIN"); // Mac = CMD, Windows = WIN
+            }
+
+            if (!["Control", "Shift", "Alt", "Meta"].includes(e.key)) {
+                currentCombo.push(e.key.toUpperCase());
+            }
+
+            hotkeyDisplay.textContent = currentCombo.join(" + ");
+        });
+
+        saveBtn.addEventListener("click", () => {
+            const comboString = currentCombo.join(" + ");
+
+            if (comboString.length === 0) {
+                hotkeyDisplay.textContent = "Please press a valid key combo!";
+                return;
+            }
+
+            if (activeButton) savedCombos.delete(activeButton.textContent.trim());
+
+            if (savedCombos.has(comboString)) {
+                hotkeyDisplay.textContent = "Combo already in use!";
+                return;
+            }
+
+            if (activeButton) {
+                activeButton.textContent = comboString;
+                savedCombos.add(comboString);
+                console.log("New hotkey saved:", comboString);
+            }
+
+            popup.style.display = "none";
+            activeButton = null;
+        });
+
+        cancelBtn.addEventListener("click", () => {
+            popup.style.display = "none";
+            activeButton = null;
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && popup.style.display === "flex") {
+                popup.style.display = "none";
+                activeButton = null;
+            }
+        });
+    });
+</script>
