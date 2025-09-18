@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ClipVault | Clipboard History</title>
+    <link rel="stylesheet" href="style_history.css">
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <a href="index.html" class="back-arrow">&lt;</a>
+            <p>Clipboard History</p>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="entry-section-title">
+            <h2>Entry</h2>
+            <h2>Last Modified</h2>
+        </div>
+
+        <div class="entries">
+            <div class="entry-row">
+                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
+                <p class="entry-modified-time">00:00:00</p>
+            </div>
+            <div class="entry-row">
+                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
+                <p class="entry-modified-time">00:00:00</p>
+            </div>
+            <div class="entry-row">
+                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
+                <p class="entry-modified-time">00:00:00</p>
+            </div>
+             <div class="entry-row">
+                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
+                <p class="entry-modified-time">00:00:00</p>
+            </div>
+            <div class="entry-row">
+                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
+                <p class="entry-modified-time">00:00:00</p>
+            </div>
+            <div class="entry-row">
+                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
+                <p class="entry-modified-time">00:00:00</p>
+            </div>
+             <div class="entry-row">
+                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
+                <p class="entry-modified-time">00:00:00</p>
+            </div>
+            <div class="entry-row">
+                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
+                <p class="entry-modified-time">00:00:00</p>
+            </div>
+            <div class="entry-row">
+                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
+                <p class="entry-modified-time">00:00:00</p>
+            </div>
+             <div class="entry-row">
+                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
+                <p class="entry-modified-time">00:00:00</p>
+            </div>
+            <div class="entry-row">
+                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
+                <p class="entry-modified-time">00:00:00</p>
+            </div>
+            <div class="entry-row">
+                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
+                <p class="entry-modified-time">00:00:00</p>
+            </div>
+             <div class="entry-row">
+                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
+                <p class="entry-modified-time">00:00:00</p>
+            </div>
+            <div class="entry-row">
+                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
+                <p class="entry-modified-time">00:00:00</p>
+            </div>
+            <div class="entry-row">
+                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
+                <p class="entry-modified-time">00:00:00</p>
+            </div>
+        </div>
+        <button class="clear-history-btn">Clear All History</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll(".entry-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    if (btn.dataset.enabled == "false"){
+                        btn.dataset.enabled = "true";
+                        btn.textContent = "test data";
+                    } else {
+                        btn.dataset.enabled = "false";
+                        btn.textContent = "Click to reveal entry"
+                    }
+                });
+            });
+            document.querySelectorAll(".clear-history-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    // TODO: Hook into DB to clear all entries.
+                    document.querySelectorAll(".entry-row").forEach(row => {
+                        row.remove();
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
