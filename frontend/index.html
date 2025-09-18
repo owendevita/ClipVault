@@ -13,10 +13,28 @@
                 </div>
             </div>
         </div>
+
+        <!-- Add connection status display -->
+        <div id="connection-status" class="status-container"></div>
+        
         <div class="button-container">
             <button class="history-btn" onclick="window.location.href='history.html'">Clipboard History</button>
             <button class="preferences-btn" onclick="window.location.href='preferences.html'">User Preferences</button>
             <button class="logout-btn" onclick="window.location.href='login.html'">Log out</button>
         </div>
+
+        <script>
+            // Test backend connection when page loads
+            window.onload = async () => {
+                try {
+                    const result = await window.backend.testConnection()
+                    document.getElementById('connection-status').innerHTML = 
+                        `Backend Status: ${result.status}<br>Message: ${result.message}`
+                } catch (error) {
+                    document.getElementById('connection-status').innerHTML = 
+                        'Error: Could not connect to backend'
+                }
+            }
+        </script>
     </body>
 </html>
