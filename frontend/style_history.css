@@ -1,0 +1,88 @@
+body { 
+    margin: 0; padding: 0; font-family: Helvetica, sans-serif; } 
+    
+.header { width: 100vw; height: 145px; background: linear-gradient(to right bottom, #DFF2FF 0%, #4285F4 50%, #7051AF 100%); display: flex; align-items: center; justify-content: center; position: relative; } 
+
+.header-content { display: flex; align-items: center; } 
+
+.header-content p { color: white; font-size: 2.75em; margin: 0; } 
+
+.back-arrow { position: absolute; left: 35px; font-size: 2.5em; line-height: 1; transform: scaleY(2); cursor: pointer; color: white; text-decoration: none; } 
+
+.back-arrow:hover { opacity: 0.7; } 
+.main {font-size: 1.25em; width: calc(100vw - 40px); box-sizing: border-box; } 
+
+.main {
+    height: calc(100vh - 145px); /* header is 145px tall */
+    overflow-y: hidden;
+    padding-bottom: 0;
+}
+
+.main h2 { margin-bottom: 40px;} 
+
+.entries {
+    max-height: calc(100vh - 325px); /* header is 145px tall, bottom btn is 85px */
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.entry-section-title, .entry-row { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    align-items: center; 
+    justify-content: center;
+    align-self: center;
+    align-items: center;
+} 
+
+.entry-section-title { 
+    font-weight: bold; 
+    text-align: center;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    
+} 
+
+.entry-row { 
+    margin-bottom: 0.5rem; 
+} 
+
+.entry-btn { 
+    width: 75%;
+    box-sizing: border-box; 
+    text-align: center;
+    margin-left: 6vw;
+    font-family: Helvetica, sans-serif;
+    border: 0;
+    background-color: transparent;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: lighter;
+} 
+
+.entry-modified-time { 
+    margin-left: 2vw;
+    text-align: center; 
+    font-family: Helvetica, sans-serif;
+    font-size: 1.2rem;
+}
+
+.clear-history-btn {
+    background-color: white;
+    color: black;
+    font-size: 1.7em;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 415px;
+    height: 55px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    display: block;
+    margin-bottom: 0;
+    position: absolute;
+    bottom: 0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+}
