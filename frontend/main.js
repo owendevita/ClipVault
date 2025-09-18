@@ -1,5 +1,5 @@
 const { app, BrowserWindow } = require('electron')
-const path = require('node:path')
+const path = require('path')
 
 function createWindow () {
   const mainWindow = new BrowserWindow({
@@ -11,16 +11,12 @@ function createWindow () {
   })
 
   mainWindow.loadFile('index.html')
-
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
 }
 
 app.whenReady().then(() => {
   createWindow()
 
   app.on('activate', function () {
-
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 })
