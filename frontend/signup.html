@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>ClipVault - Sign Up Form</title>
+    <link rel="stylesheet" href="style_signup.css">
+</head>
+<body>
+    <div class="login-form-container">
+        <div class="login-form-content">
+            <div class="logo-container">
+                <img src="./logo.png" alt="ClipVault Logo" class="main-logo">
+            </div>
+            
+            <div class="form-section">
+                <button class="form-signup-btn" onclick="submitSignup()">Sign up</button>
+                
+                <input type="text" class="login-input" placeholder="Username" id="username">
+                <input type="password" class="login-input" placeholder="Password" id="password">
+                
+                <div id="error-message" class="error-message" style="display: none;">
+                    Account created successfully!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function submitSignup() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (username && password) {
+                document.getElementById('error-message').textContent = 'Account created successfully!';
+                document.getElementById('error-message').style.display = 'block';
+                
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+            } else {
+                document.getElementById('error-message').textContent = 'Please fill in both username and password';
+                document.getElementById('error-message').style.display = 'block';
+                
+                setTimeout(() => {
+                    document.getElementById('error-message').style.display = 'none';
+                }, 5000);
+            }
+        }
+    </script>
+</body>
+</html>

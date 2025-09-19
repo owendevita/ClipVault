@@ -1,0 +1,101 @@
+/* Home page styles */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Helvetica, sans-serif;
+}
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(to right bottom, #DFF2FF 0%, #4285F4 50%, #7051AF 100%);
+    padding: 0;
+}
+
+.login-content {
+    text-align: center;
+    color: white;
+    max-width: 500px;
+    width: 100%;
+    transform: translateY(-60px);
+}
+
+.logo-container {
+    margin-bottom: 40px;
+    margin-top: 60px;
+}
+
+.main-logo {
+    width: 400px;
+    height: 400px;
+    filter: none;
+}
+
+.app-title {
+    font-size: 7rem;
+    font-weight: 400;
+    margin: 30px 0 15px 0;
+    letter-spacing: -3px;
+    color: white;
+    font-family: Helvetica, sans-serif;
+}
+
+.app-subtitle {
+    font-size: 1.5rem;
+    font-weight: 400;
+    margin-bottom: 80px;
+    opacity: 1;
+    color: white;
+}
+
+.login-section {
+    margin-top: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.main-login-btn {
+    background: rgba(135, 206, 235, 0.7);
+    border: none;
+    color: white;
+    padding: 20px 90px;
+    font-size: 1.3rem;
+    font-weight: 400;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.main-login-btn:hover {
+    background: rgba(135, 206, 235, 0.85);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.main-signup-btn {
+    background: rgba(255, 255, 255, 0.8);
+    border: none;
+    color: #5BB3D6;
+    padding: 18px 90px;
+    font-size: 1.2rem;
+    font-weight: 400;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.main-signup-btn:hover {
+    background: rgba(255, 255, 255, 0.9);
+    color: #4A9BC4;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}

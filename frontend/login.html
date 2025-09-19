@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>ClipVault - Login Form</title>
+    <link rel="stylesheet" href="style_login.css">
+</head>
+<body>
+    <div class="login-form-container">
+        <div class="login-form-content">
+            <div class="logo-container">
+                <img src="./logo.png" alt="ClipVault Logo" class="main-logo">
+            </div>
+            
+            <div class="form-section">
+                <button class="form-login-btn" onclick="submitLogin()">Log in</button>
+                
+                <input type="text" class="login-input" placeholder="Username" id="username">
+                <input type="password" class="login-input" placeholder="Password" id="password">
+                
+                <div id="error-message" class="error-message" style="display: none;">
+                    Incorrect password, maybe make an account?
+                </div>
+                
+                <button class="main-signup-btn" id="signup-btn" onclick="goToSignup()" style="display: none;">Sign up</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function submitLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            const correctUsername = "1";
+            const correctPassword = "1";
+            
+            if (username === correctUsername && password === correctPassword) {
+                window.location.href = 'index.html';
+            } else {
+                document.getElementById('error-message').style.display = 'block';
+                document.getElementById('signup-btn').style.display = 'block';
+                
+                setTimeout(() => {
+                    document.getElementById('error-message').style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        function goToSignup() {
+            window.location.href = 'signup.html'; 
+        }
+    </script>
+</body>
+</html>
