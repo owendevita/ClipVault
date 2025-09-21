@@ -8,7 +8,6 @@ import uvicorn
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
-    db.clear_history()
     clipboard.start_monitoring(db)
     yield
     # Shutdown
@@ -35,21 +34,25 @@ async def health_check():
 async def get_clipboard():
     content = clipboard.get_clipboard_content()
     if content:  # Only add non-empty content
-        db.add_entry(content)  # This will update both DB and text file
+        db.add_entry(content) 
     return {"content": content}
 
 @app.post("/clipboard/set")
 async def set_clipboard(content: str = Body(...)):
     success = clipboard.set_clipboard_content(content)
     if success:
-        db.add_entry(content)  # This will update both DB and text file
+        db.add_entry(content)  
     return {"success": success}
 
 @app.get("/clipboard/history")
 async def get_history(limit: int = 10):
     return db.get_history(limit)
 
-# Add a test endpoint for frontend connection
+@app.delete("/clipboard/clear-history")
+async def clear_history():
+    return db.clear_history()
+
+# Test endpoint for frontend connection
 @app.get("/test-connection")
 async def test_connection():
     return {
