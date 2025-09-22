@@ -31,7 +31,5 @@
   },
   "jest": {
     "testEnvironment": "jsdom"
-  },
-  "author": "",
-  "license": "ISC"
+  }
 }
