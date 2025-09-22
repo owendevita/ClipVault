@@ -20,7 +20,7 @@
         <div class="button-container">
             <button class="history-btn" onclick="window.location.href='history.html'">Clipboard History</button>
             <button class="preferences-btn" onclick="window.location.href='preferences.html'">User Preferences</button>
-            <button class="logout-btn" onclick="window.location.href='login.html'">Log out</button>
+            <button class="logout-btn" onclick="exitApp()">Log out</button>
         </div>
 
         <script>
@@ -35,6 +35,17 @@
                         'Error: Could not connect to backend'
                 }
             }
+
+            // Exit the application
+            function exitApp() {
+                if (window.backend && window.backend.exitApp) {
+                    window.backend.exitApp();
+                } else {
+                    window.close();
+                }
+            }
         </script>
+
+         <script src="renderer.js"></script>
     </body>
 </html>

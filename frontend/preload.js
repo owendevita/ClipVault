@@ -35,6 +35,12 @@ contextBridge.exposeInMainWorld(
         async getHistory(limit = 10) {
             const response = await fetch(`${API_URL}/clipboard/history?limit=${limit}`)
             return response.json()
+        },
+
+        // Exit the application
+        exitApp() {
+            const { ipcRenderer } = require('electron')
+            ipcRenderer.send('exit-app')
         }
     }
 )

@@ -1,6 +1,9 @@
 import sqlite3
 from datetime import datetime
 import os
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 class ClipboardDB:
     def __init__(self, db_path="clipboard_history.db"):
@@ -27,6 +30,12 @@ class ClipboardDB:
              content TEXT NOT NULL,
              timestamp TEXT NOT NULL)
         ''')
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS users
+            (id INTEGER PRIMARY KEY AUTOINCREMENT,
+             username TEXT UNIQUE NOT NULL,
+             password_hash TEXT NOT NULL)
+        ''')
         conn.commit()
         conn.close()
 
@@ -45,8 +54,6 @@ class ClipboardDB:
         print("adding " + content_clean)
         conn.commit()
         conn.close()
-
-
 
     def get_history(self, limit: int = 10):
         # Get clipboard history
@@ -74,6 +81,26 @@ class ClipboardDB:
         history = self.get_history(limit=100)
         for entry in history:
             print(f"[{entry['timestamp']}] {entry['content']}")
+    
+    def create_user(self, username: str, password: str):
+        """Register new user with hashed password"""
+        password_hash = pwd_context.hash(password)
+        conn = sqlite3.connect(self.db_path)
+        c = conn.cursor()
+        c.execute('INSERT INTO users (username, password_hash) VALUES (?, ?)', (username, password_hash))
+        conn.commit()
+        conn.close()
+
+    def verify_user(self, username: str, password: str) -> bool:
+        """Verify username & password"""
+        conn = sqlite3.connect(self.db_path)
+        c = conn.cursor()
+        c.execute('SELECT password_hash FROM users WHERE username = ?', (username,))
+        row = c.fetchone()
+        conn.close()
+        if row:
+            return pwd_context.verify(password, row[0])
+        return False
 
 if __name__ == "__main__":
     db = ClipboardDB()
