@@ -1,40 +1,67 @@
 # ClipVault Backend
 
-## Setup and Running
+FastAPI service that manages clipboard history, user auth, and a local SQLite database. The Electron frontend calls these HTTP endpoints.
 
-### Install Dependencies
+## Prerequisites
+
+- Python 3.11+ 
+- Windows PowerShell
+
+## Setup (Windows)
+
+From the `backend` folder, create a virtual environment and install dependencies:
+
 ```powershell
-pip install fastapi uvicorn pyperclip pytest
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install --upgrade pip
+pip install -r requirements.txt
 ```
 
-### Run Backend Server
-To start the ClipVault backend server:
+If you see a ModuleNotFoundError (e.g., `passlib`), ensure you activated the venv and installed from `requirements.txt`.
+
+## Run the server
+
 ```powershell
+# In the backend folder with venv activated
 python main.py
 ```
-The server will run at `http://127.0.0.1:8000`
 
-### Running Tests
-To run all tests:
-```powershell
-python tests/run_tests.py
-```
-Or using pytest directly:
+The API will be available at http://127.0.0.1:8000.
+
+## Tests
+
 ```powershell
 python -m pytest tests -v
 ```
 
-### Viewing Database Contents
-The clipboard history is stored in two formats:
+Or run the helper:
 
-1. SQLite Database (`clipboard_history.db`)
-   - Use any SQLite viewer like DB Browser for SQLite
-   - Contains structured data with timestamps
+```powershell
+python tests/run_tests.py
+```
 
-2. Text File (`clipboard_history.txt`)
-   - Human-readable format
-   - Updated in real-time with clipboard changes
-   - View using:
-     ```powershell
-     type clipboard_history.txt
-     ```
+Note: JavaScript tests (Jest + jsdom) are used in the frontend; backend tests use pytest only.
+
+## Data files
+
+- `clipboard_history.db`: SQLite database
+- `clipboard_history.txt`: human-readable log
+
+View the text log:
+
+```powershell
+type clipboard_history.txt
+```
+
+## Dependencies
+
+Installed via `requirements.txt`:
+
+- fastapi: API framework
+- uvicorn[standard]: ASGI server
+- pyperclip: system clipboard access
+- passlib[bcrypt]: password hashing
+- python-jose[cryptography]: JWT tokens
+- python-multipart: form data for OAuth2PasswordRequestForm
+- pytest: test runner
