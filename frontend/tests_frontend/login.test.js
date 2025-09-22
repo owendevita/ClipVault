@@ -11,6 +11,7 @@ let loginBtn;
 
 beforeEach(() => {
   document.documentElement.innerHTML = html.toString();
+  global.submitLogin = jest.fn();
   loginBtn = document.getElementById("login-btn");
 });
 
