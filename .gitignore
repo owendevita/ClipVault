@@ -210,3 +210,4 @@ __marimo__/
 # Electron
 node_modules/
 out/
+backend/clipboard_history.db
