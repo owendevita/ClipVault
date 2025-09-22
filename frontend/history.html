@@ -19,91 +19,110 @@
             <h2>Last Modified</h2>
         </div>
 
-        <div class="entries">
-            <div class="entry-row">
-                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
-                <p class="entry-modified-time">00:00:00</p>
-            </div>
-            <div class="entry-row">
-                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
-                <p class="entry-modified-time">00:00:00</p>
-            </div>
-            <div class="entry-row">
-                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
-                <p class="entry-modified-time">00:00:00</p>
-            </div>
-             <div class="entry-row">
-                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
-                <p class="entry-modified-time">00:00:00</p>
-            </div>
-            <div class="entry-row">
-                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
-                <p class="entry-modified-time">00:00:00</p>
-            </div>
-            <div class="entry-row">
-                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
-                <p class="entry-modified-time">00:00:00</p>
-            </div>
-             <div class="entry-row">
-                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
-                <p class="entry-modified-time">00:00:00</p>
-            </div>
-            <div class="entry-row">
-                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
-                <p class="entry-modified-time">00:00:00</p>
-            </div>
-            <div class="entry-row">
-                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
-                <p class="entry-modified-time">00:00:00</p>
-            </div>
-             <div class="entry-row">
-                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
-                <p class="entry-modified-time">00:00:00</p>
-            </div>
-            <div class="entry-row">
-                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
-                <p class="entry-modified-time">00:00:00</p>
-            </div>
-            <div class="entry-row">
-                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
-                <p class="entry-modified-time">00:00:00</p>
-            </div>
-             <div class="entry-row">
-                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
-                <p class="entry-modified-time">00:00:00</p>
-            </div>
-            <div class="entry-row">
-                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
-                <p class="entry-modified-time">00:00:00</p>
-            </div>
-            <div class="entry-row">
-                <button class="entry-btn" data-enabled="false">Click to reveal entry</button>
-                <p class="entry-modified-time">00:00:00</p>
-            </div>
+        <div class="entries" id="entries-container">
+            <!-- Dynamic entries will be inserted here -->
         </div>
         <button class="clear-history-btn">Clear All History</button>
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            document.querySelectorAll(".entry-btn").forEach(btn => {
-                btn.addEventListener("click", () => {
-                    if (btn.dataset.enabled == "false"){
-                        btn.dataset.enabled = "true";
-                        btn.textContent = "test data";
-                    } else {
-                        btn.dataset.enabled = "false";
-                        btn.textContent = "Click to reveal entry"
-                    }
-                });
+        const BACKEND_URL = "http://127.0.0.1:8000";
+
+        async function checkHealth() {
+            try {
+                const res = await fetch(`${BACKEND_URL}/health`);
+                const data = await res.json();
+                return data.status === "ok";
+            } catch (err) {
+                console.error("Backend health check failed:", err);
+                return false;
+            }
+        }
+
+        function formatDate(isoString) {
+            if (!isoString) return "Unknown";
+            const date = new Date(isoString);
+            return date.toLocaleString(undefined, {
+                year: "numeric",
+                month: "short",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: true
             });
-            document.querySelectorAll(".clear-history-btn").forEach(btn => {
-                btn.addEventListener("click", () => {
-                    // TODO: Hook into DB to clear all entries.
-                    document.querySelectorAll(".entry-row").forEach(row => {
-                        row.remove();
+        }
+
+        async function loadHistory() {
+            const healthy = await checkHealth();
+            if (!healthy) {
+                alert("Backend unavailable. Please ensure the server is running.");
+                return;
+            }
+
+            try {
+                const res = await fetch(`${BACKEND_URL}/clipboard/history?limit=20`);
+                const history = await res.json();
+                const container = document.getElementById("entries-container");
+                container.innerHTML = ""; // clear old entries
+
+                history.forEach((entry, idx) => {
+                    const row = document.createElement("div");
+                    row.className = "entry-row";
+
+                    const btn = document.createElement("button");
+                    btn.className = "entry-btn";
+                    btn.dataset.enabled = "false";
+                    btn.dataset.id = idx; // use index for identification
+                    btn.textContent = "Click to reveal entry";
+
+                    const time = document.createElement("p");
+                    time.className = "entry-modified-time";
+                    time.textContent = formatDate(entry.timestamp) || "Unknown";
+
+                    btn.addEventListener("click", async () => {
+                        if (btn.dataset.enabled === "false") {
+                            // Query backend for full entry by index
+                            // Assuming entry has "content" in the history response
+                            btn.dataset.enabled = "true";
+                            btn.textContent = entry.content || "[Empty]";
+                        } else {
+                            btn.dataset.enabled = "false";
+                            btn.textContent = "Click to reveal entry";
+                        }
                     });
+
+                    row.appendChild(btn);
+                    row.appendChild(time);
+                    container.appendChild(row);
                 });
+            } catch (err) {
+                console.error("Error loading history:", err);
+            }
+        }
+
+        async function clearHistory() {
+            const healthy = await checkHealth();
+            if (!healthy) {
+                alert("Backend unavailable. Please ensure the server is running.");
+                return;
+            }
+
+            try {
+                await fetch(`${BACKEND_URL}/clipboard/clear-history`, {
+                    method: "DELETE"
+                });
+                document.getElementById("entries-container").innerHTML = "";
+            } catch (err) {
+                console.error("Error clearing history:", err);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadHistory();
+
+            document.querySelector(".clear-history-btn").addEventListener("click", () => {
+                clearHistory();
             });
         });
     </script>

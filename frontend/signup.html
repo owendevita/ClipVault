@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>ClipVault - Login Form</title>
-    <link rel="stylesheet" href="style_login.css">
+    <title>ClipVault - Sign Up Form</title>
+    <link rel="stylesheet" href="style_signup.css">
 </head>
 <body>
     <div class="login-form-container">
@@ -12,41 +12,38 @@
             </div>
             
             <div class="form-section">
-                <button id="login-btn" class="form-login-btn" onclick="submitLogin()">Log in</button>
+                <button class="form-signup-btn" onclick="submitSignup()">Sign up</button>
+                
                 <input type="text" class="login-input" placeholder="Username" id="username">
                 <input type="password" class="login-input" placeholder="Password" id="password">
                 
                 <div id="error-message" class="error-message" style="display: none;">
-                    Incorrect password, maybe make an account?
+                    Account created successfully!
                 </div>
-                
-                <button class="main-signup-btn" id="signup-btn" onclick="goToSignup()" style="display: none;">Sign up</button>
             </div>
         </div>
     </div>
 
     <script>
-        function submitLogin() {
+        function submitSignup() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             
-            const correctUsername = "1";
-            const correctPassword = "1";
-            
-            if (username === correctUsername && password === correctPassword) {
-                window.location.href = 'index.html';
-            } else {
+            if (username && password) {
+                document.getElementById('error-message').textContent = 'Account created successfully!';
                 document.getElementById('error-message').style.display = 'block';
-                document.getElementById('signup-btn').style.display = 'block';
+                
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+            } else {
+                document.getElementById('error-message').textContent = 'Please fill in both username and password';
+                document.getElementById('error-message').style.display = 'block';
                 
                 setTimeout(() => {
                     document.getElementById('error-message').style.display = 'none';
                 }, 5000);
             }
-        }
-        
-        function goToSignup() {
-            window.location.href = 'signup.html'; 
         }
     </script>
 </body>
