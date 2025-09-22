@@ -9,3 +9,7 @@ Clipboard security is becoming more important as malware strains have begun spec
 ## Contributing
 
 We welcome contributions! Please see our [contributing guide](docs/CONTRIBUTING.md) for details.
+
+## Developer setup
+
+If you're setting up the project locally, see the full [Developer Guide](docs/DEVELOPER_README.md).
