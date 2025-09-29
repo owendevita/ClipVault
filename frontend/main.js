@@ -14,7 +14,6 @@ function createWindow() {
     mainWindow.loadFile('home.html')
 }
 
-// Handle exit app request from renderer
 ipcMain.on('exit-app', () => {
     app.quit()
 })

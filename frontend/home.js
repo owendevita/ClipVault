@@ -36,7 +36,7 @@ document.getElementById('submitLogin').addEventListener('click', () => {
         setTimeout(() => {
             loginModal.style.display = 'none';
             loginMessage.style.display = 'none';
-            window.location.href = "index.html";
+            window.location.href = "main.html";
         }, 1500);
 
     } else {

@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (data.access_token) {
         localStorage.setItem("token", data.access_token);
-        window.location.href = "index.html";
+        window.location.href = "main.html";
       } else {
         alert(data.detail || "Login failed");
       }
