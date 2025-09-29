@@ -70,7 +70,7 @@ body {
 .clear-history-btn {
     background-color: white;
     color: black;
-    font-size: 1.7em;
+    font-size: 1.25em;
     padding: 10px 20px;
     border: none;
     border-radius: 8px;
@@ -82,7 +82,12 @@ body {
     display: block;
     margin-bottom: 0;
     position: absolute;
-    bottom: 0.5rem;
+    bottom: 2.5rem;
     left: 50%;
     transform: translateX(-50%);
+    border: 1px solid black;
+}
+
+.clear-history-btn:hover {
+    background-color: #e2e2e2;
 }
