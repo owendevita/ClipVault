@@ -1,11 +1,10 @@
-/* Login form page styles */
 body {
     margin: 0;
     padding: 0;
     font-family: Helvetica, sans-serif;
 }
 
-.login-form-container {
+.login-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -14,125 +13,140 @@ body {
     padding: 0;
 }
 
-.login-form-content {
+.login-content {
     text-align: center;
     color: white;
     max-width: 500px;
     width: 100%;
-    transform: translateY(-60px);
-}
-
-.logo-container {
-    margin-bottom: 40px;
-    margin-top: 60px;
-    position: relative;
 }
 
 .main-logo {
     width: 400px;
     height: 400px;
-    filter: none;
 }
 
-.form-section {
-    margin-top: 60px;
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-    align-items: center;
-}
-
-.login-input {
-    background: rgba(255, 255, 255, 0.8);
-    border: none;
-    color: black;
-    padding: 20px 30px;
-    font-size: 1.1rem;
+.app-title {
+    font-size: 7rem;
     font-weight: 400;
-    border-radius: 50px;
-    width: 300px;
-    text-align: center;
-    outline: none;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-sizing: border-box;
-}
-
-.login-input::placeholder {
-    color: rgba(0, 0, 0, 0.4);
-    transition: opacity 0.2s ease;
-}
-
-.login-input:focus::placeholder {
-    opacity: 0;
-}
-
-.login-input:focus {
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-}
-
-.form-login-btn {
-    background: rgba(135, 206, 235, 0.7);
-    border: none;
+    margin: 0 0 15px 0;
+    letter-spacing: -3px;
     color: white;
-    padding: 20px 30px;
-    font-size: 1.3rem;
+    font-family: Helvetica, sans-serif;
+    margin-top: -50px;
+}
+
+.app-subtitle {
+    font-size: 1.5rem;
     font-weight: 400;
+    margin-bottom: 80px;
+    opacity: 1;
+    color: white;
+}
+
+.main-login-btn,
+.main-signup-btn {
+    width: 350px;
+    max-width: 100%;
     border-radius: 50px;
+    font-size: 1.75rem;
+    font-weight: 400;
     cursor: pointer;
     transition: all 0.2s ease;
+    padding: 20px 0;
+    margin: 10px 0;
+}
+
+.main-login-btn {
+    background: #69A2FF;
+    border: none;
+    color: white;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    width: 300px;
-    box-sizing: border-box;
 }
 
-.form-login-btn:hover {
-    background: rgba(135, 206, 235, 0.85);
+.main-login-btn:hover {
+    background: #4a86ff;
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 }
 
-#signup-btn {
-    width: 300px;
-    padding: 20px 30px;
-    box-sizing: border-box;
+.main-signup-btn {
     background: rgba(255, 255, 255, 0.8);
     border: none;
-    color: #5BB3D6;
-    font-size: 1.2rem;
-    font-weight: 400;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    color: #69A2FF;
+    padding: 18px 0;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 }
 
-#signup-btn:hover {
-    background: rgba(255, 255, 255, 0.9);
-    color: #4A9BC4;
+.main-signup-btn:hover {
+    background: rgba(255, 255, 255, 0.479);
+    color: #ffffff;
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
-.error-message {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: #ff6b6b;
-    font-size: 1rem;
-    font-weight: 400;
-    padding: 15px 30px;
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 25px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+.modal {
+    display: none;
+    position: fixed;
     z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
     text-align: center;
+    width: 300px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+.modal-content h2 {
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.modal-content input {
+    width: 90%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.modal-content button {
+    margin-top: 15px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 50px;
+    background: #69A2FF;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.modal-content button:hover {
+    background: #4a86ff;
+}
+
+.message {
+    margin-top: 15px;
+    font-size: 1rem;
+    display: none;
+}
+.message.success {
+    color: green;
+}
+.message.error {
+    color: red;
 }

@@ -20,7 +20,7 @@ npm install
 npm start
 ```
 
-This launches Electron and loads `home.html`. The renderer uses `preload.js` to call the backend at `http://127.0.0.1:8000`.
+This launches Electron and loads `login.html`. The renderer uses `preload.js` to call the backend at `http://127.0.0.1:8000`.
 
 ## Package (distributables)
 
