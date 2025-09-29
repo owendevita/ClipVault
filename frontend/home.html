@@ -7,28 +7,40 @@
 <body>
     <div class="login-container">
         <div class="login-content">
-            <div class="logo-container">
-                <img src="./logo.png" alt="ClipVault Logo" class="main-logo">
-            </div>
+            <img src="./logo.png" alt="ClipVault Logo" class="main-logo">
             
             <h1 class="app-title">ClipVault</h1>
             <p class="app-subtitle">Your Encrypted Clipboard</p>
             
             <div class="login-section">
-                <button class="main-login-btn" onclick="login()">Log in</button>
-                <button class="main-signup-btn" onclick="signup()">Sign up</button>
+                <button class="main-login-btn" id="openLogin">Log in</button>
+                <button class="main-signup-btn" id="openSignup">Sign up</button>
             </div>
         </div>
     </div>
 
-    <script>
-        function login() {
-            window.location.href = 'login.html';
-        }
-        
-        function signup() {
-            window.location.href = 'signup.html'; 
-        }
-    </script>
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <h2>Login</h2>
+            <input type="text" placeholder="Username" id="loginUsername">
+            <input type="password" placeholder="Password" id="loginPassword">
+            <button id="submitLogin">Submit</button>
+            <p class="message" id="loginMessage"></p>
+        </div>
+    </div>
+
+    <!-- Sign Up Modal -->
+    <div class="modal" id="signupModal">
+        <div class="modal-content">
+            <h2>Sign Up</h2>
+            <input type="text" placeholder="Username" id="signupUsername">
+            <input type="password" placeholder="Password" id="signupPassword">
+            <button id="submitSignup">Submit</button>
+            <p class="message" id="signupMessage"></p>
+        </div>
+    </div>
+
+    <script src="home.js"></script>
 </body>
 </html>
