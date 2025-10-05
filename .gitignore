@@ -211,3 +211,5 @@ __marimo__/
 node_modules/
 out/
 backend/clipboard_history.db
+*.db
+frontend/resources
