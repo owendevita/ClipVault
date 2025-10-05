@@ -1,4 +1,4 @@
-name: Electron CI
+name: Automatic Build CI
 
 on:
   push:
