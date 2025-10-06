@@ -13,39 +13,46 @@ body {
 .main {font-size: 1.25em; width: calc(100vw - 40px); box-sizing: border-box; } 
 
 .main {
-    height: calc(100vh - 145px); /* header is 145px tall */
+    height: calc(100vh - 145px);
     overflow-y: hidden;
     padding-bottom: 0;
 }
 
-.main h2 { margin-bottom: 40px;} 
+.main h2 { margin-bottom: 20px;} 
 
 .entries {
-    max-height: calc(100vh - 325px); /* header is 145px tall, bottom btn is 85px */
+    max-height: calc(100vh - 325px);
     overflow-y: auto;
     overflow-x: hidden;
 }
 
-.entry-section-title, .entry-row { 
-    display: grid; 
-    grid-template-columns: 1fr 1fr; 
-    align-items: center; 
-    justify-content: center;
-    align-self: center;
+.entry-section-title, .entry-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 60px;
     align-items: center;
-} 
+    justify-content: center;
+}
 
-.entry-section-title { 
-    font-weight: bold; 
+.entry-section-title h2:first-child,
+.entry-section-title h2:nth-child(2) {
+    margin-left: 0;
     text-align: center;
-    margin-bottom: 0;
-    padding-bottom: 0;
-    
-} 
+}
 
 .entry-row { 
-    margin-bottom: 0.5rem; 
-} 
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    position: relative;
+}
+
+.entry-row::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 10%;
+    width: 75%;
+    border-bottom: 1px solid #ddd;
+}
 
 .entry-btn { 
     width: 75%;
@@ -90,4 +97,26 @@ body {
 
 .clear-history-btn:hover {
     background-color: #e2e2e2;
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+}
+
+.delete-btn img {
+    width: 32px;
+    height: 32px;
+    margin-left: -6px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.delete-btn img:hover {
+    transform: scale(1.2);
+    opacity: 0.85;
 }
