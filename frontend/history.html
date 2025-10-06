@@ -8,7 +8,7 @@
 <body>
     <div class="header">
         <div class="header-content">
-            <a href="index.html" class="back-arrow">&lt;</a>
+            <a href="main.html" class="back-arrow">&lt;</a>
             <p>Clipboard History</p>
         </div>
     </div>
@@ -17,10 +17,10 @@
         <div class="entry-section-title">
             <h2>Entry</h2>
             <h2>Last Modified</h2>
+            <div></div>
         </div>
 
         <div class="entries" id="entries-container">
-            <!-- Dynamic entries will be inserted here -->
         </div>
         <button class="clear-history-btn">Clear All History</button>
     </div>
@@ -43,7 +43,7 @@
             if (!isoString) return "Unknown";
             const date = new Date(isoString);
             return date.toLocaleString(undefined, {
-                year: "numeric",
+                //year: "numeric",  // omit year for brevity
                 month: "short",
                 day: "2-digit",
                 hour: "2-digit",
@@ -64,38 +64,51 @@
                 const res = await fetch(`${BACKEND_URL}/clipboard/history?limit=20`);
                 const history = await res.json();
                 const container = document.getElementById("entries-container");
-                container.innerHTML = ""; // clear old entries
+                container.innerHTML = "";
 
                 history.forEach((entry, idx) => {
                     const row = document.createElement("div");
                     row.className = "entry-row";
-
+                                
                     const btn = document.createElement("button");
                     btn.className = "entry-btn";
                     btn.dataset.enabled = "false";
-                    btn.dataset.id = idx; // use index for identification
-                    btn.textContent = "Click to reveal entry";
-
+                    btn.dataset.id = idx;
+                    btn.textContent = "Click to reveal";
+                                
                     const time = document.createElement("p");
                     time.className = "entry-modified-time";
                     time.textContent = formatDate(entry.timestamp) || "Unknown";
-
-                    btn.addEventListener("click", async () => {
+                                
+                    const deleteBtn = document.createElement("button");
+                    deleteBtn.className = "delete-btn";
+                                
+                    const deleteIcon = document.createElement("img");
+                    deleteIcon.src = "./bin.png"; 
+                    deleteIcon.alt = "Delete";
+                                
+                    deleteBtn.appendChild(deleteIcon);
+                                
+                    deleteBtn.addEventListener("click", () => {
+                        row.remove();
+                    });
+                
+                    btn.addEventListener("click", () => {
                         if (btn.dataset.enabled === "false") {
-                            // Query backend for full entry by index
-                            // Assuming entry has "content" in the history response
                             btn.dataset.enabled = "true";
                             btn.textContent = entry.content || "[Empty]";
                         } else {
                             btn.dataset.enabled = "false";
-                            btn.textContent = "Click to reveal entry";
+                            btn.textContent = "Click to reveal";
                         }
                     });
-
+                
                     row.appendChild(btn);
                     row.appendChild(time);
+                    row.appendChild(deleteBtn);
                     container.appendChild(row);
                 });
+
             } catch (err) {
                 console.error("Error loading history:", err);
             }
