@@ -89,8 +89,24 @@
                                 
                     deleteBtn.appendChild(deleteIcon);
                                 
-                    deleteBtn.addEventListener("click", () => {
-                        row.remove();
+                    deleteBtn.addEventListener("click", async () => {
+                        const confirmed = confirm("Delete this entry?");
+                        if (!confirmed) return;
+
+                        try {
+                            const res = await fetch(`${BACKEND_URL}/clipboard/delete/${entry.id}`, {
+                                method: "DELETE"
+                            });
+                            if (res.ok) {
+                                row.remove();
+                            } else {
+                                const data = await res.json();
+                                alert("Error deleting entry: " + (data.detail || res.statusText));
+                            }
+                        } catch (err) {
+                            console.error("Error deleting entry:", err);
+                            alert("Could not connect to backend.");
+                        }
                     });
                 
                     btn.addEventListener("click", () => {

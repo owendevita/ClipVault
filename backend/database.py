@@ -19,6 +19,16 @@ class ClipboardDB:
             conn.commit()
             conn.close()
             return True
+        
+    def delete_entry(self, entry_id: int):
+        """Delete a single clipboard entry by ID"""
+        conn = sqlite3.connect(self.db_path)
+        c = conn.cursor()
+        c.execute('DELETE FROM clipboard_history WHERE id = ?', (entry_id,))
+        conn.commit()
+        deleted = c.rowcount > 0
+        conn.close()
+        return deleted
 
     def init_db(self):
         """Initialize database if it doesn't exist"""
