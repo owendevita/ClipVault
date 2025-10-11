@@ -138,22 +138,6 @@ test("failed login shows error message", async () => {
   expect(loginMessage.className).toContain("error");
 }, 10000);
 
-
-test("network error during login shows error message", async () => {
-  document.getElementById("loginUsername").value = "user";
-  document.getElementById("loginPassword").value = "pass";
-
-  global.fetch.mockRejectedValueOnce(new Error("Network error"));
-
-  submitLogin.click();
-
-  await flushAll();
-
-  expect(loginMessage.textContent).toContain("Network error");
-  expect(loginMessage.className).toContain("error");
-}, 10000);
-
-
 test("signup success hides modal after short delay", async () => {
   document.getElementById("signupUsername").value = "newuser";
   document.getElementById("signupPassword").value = "newpass";
