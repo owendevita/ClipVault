@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    env:
+      CI: true
 
     strategy:
       matrix:
@@ -35,3 +37,4 @@ jobs:
         with:
           name: electron-builds
           path: frontend/out/make/**
+          if-no-files-found: ignore
