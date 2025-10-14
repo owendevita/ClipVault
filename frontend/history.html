@@ -26,12 +26,24 @@
     </div>
 
     <script>
-        const BACKEND_URL = "http://127.0.0.1:8000";
+        // Check authentication on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!window.backend.auth.isLoggedIn()) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            loadHistory();
+            
+            document.querySelector(".clear-history-btn").addEventListener("click", () => {
+                clearHistory();
+            });
+
+        });
 
         async function checkHealth() {
             try {
-                const res = await fetch(`${BACKEND_URL}/health`);
-                const data = await res.json();
+                const data = await window.backend.testConnection();
                 return data.status === "ok";
             } catch (err) {
                 console.error("Backend health check failed:", err);
@@ -61,10 +73,28 @@
             }
 
             try {
-                const res = await fetch(`${BACKEND_URL}/clipboard/history?limit=20`);
-                const history = await res.json();
+                const response = await window.backend.getHistory(20);
+                // The backend now returns {history: [...], user: "username"}
+                const history = response.history || response; // Handle both formats
                 const container = document.getElementById("entries-container");
                 container.innerHTML = "";
+
+                if (!history || history.length === 0) {
+                    // Check if there are encrypted entries that cannot be decrypted (key rotation scenario)
+                    try {
+                        const raw = await window.backend.rawHistory(5);
+                        const count = (raw && raw.raw_history && raw.raw_history.length) ? raw.raw_history.length : 0;
+                        if (count > 0) {
+                            container.innerHTML = '<p style="text-align: center; color: #666; margin: 20px;">No decryptable history found. There are ' + count + ' encrypted items that cannot be decrypted (likely due to key rotation). You can add new entries or clear all history.</p>';
+                        } else {
+                            container.innerHTML = '<p style="text-align: center; color: #666; margin: 20px;">No clipboard history found.</p>';
+                        }
+                        return;
+                    } catch {
+                        container.innerHTML = '<p style="text-align: center; color: #666; margin: 20px;">No clipboard history found.</p>';
+                        return;
+                    }
+                }
 
                 history.forEach((entry, idx) => {
                     const row = document.createElement("div");
@@ -89,8 +119,15 @@
                                 
                     deleteBtn.appendChild(deleteIcon);
                                 
-                    deleteBtn.addEventListener("click", () => {
-                        row.remove();
+                    deleteBtn.addEventListener("click", async () => {
+                        if (!confirm("Delete this entry?")) return;
+                        try {
+                            await window.backend.deleteHistoryEntry(entry.id);
+                            row.remove();
+                        } catch (e) {
+                            console.error("Failed to delete entry", entry.id, e);
+                            alert("Failed to delete entry. Please try again.");
+                        }
                     });
                 
                     btn.addEventListener("click", () => {
@@ -115,6 +152,10 @@
         }
 
         async function clearHistory() {
+            if (!confirm("Are you sure you want to clear all clipboard history? This action cannot be undone.")) {
+                return;
+            }
+
             const healthy = await checkHealth();
             if (!healthy) {
                 alert("Backend unavailable. Please ensure the server is running.");
@@ -122,22 +163,18 @@
             }
 
             try {
-                await fetch(`${BACKEND_URL}/clipboard/clear-history`, {
-                    method: "DELETE"
-                });
-                document.getElementById("entries-container").innerHTML = "";
+                await window.backend.clearHistory();
+                document.getElementById("entries-container").innerHTML = '<p style="text-align: center; color: #28a745; margin: 20px;">✅ History cleared successfully!</p>';
+                
+                // Reload history after a short delay
+                setTimeout(() => {
+                    loadHistory();
+                }, 2000);
             } catch (err) {
                 console.error("Error clearing history:", err);
+                alert("Failed to clear history. Please try again.");
             }
         }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            loadHistory();
-
-            document.querySelector(".clear-history-btn").addEventListener("click", () => {
-                clearHistory();
-            });
-        });
     </script>
 </body>
 </html>

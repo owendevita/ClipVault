@@ -30,6 +30,10 @@
     "electron-squirrel-startup": "^1.0.1"
   },
   "jest": {
-    "testEnvironment": "jsdom"
+    "testEnvironment": "jsdom",
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "coverageReporters": ["lcov", "text", "clover"],
+    "coveragePathIgnorePatterns": ["/node_modules/", "/out/"]
   }
 }

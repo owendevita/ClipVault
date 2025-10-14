@@ -1,4 +1,8 @@
 {
+  "name": "clipvault-secure",
+  "version": "2.0.0",
+  "description": "Secure clipboard manager with encryption",
+  "main": "./frontend/main.js",
   "dependencies": {
     "electron": "^38.0.0"
   }

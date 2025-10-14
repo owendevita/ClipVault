@@ -17,22 +17,62 @@
         <!-- Add connection status display -->
         <div id="connection-status" class="status-container"></div>
         
+        <!-- User info display -->
+        <div class="user-info">
+            <p id="current-user">Loading user info...</p>
+        </div>
+
         <div class="button-container">
             <button class="history-btn" onclick="window.location.href='history.html'">Clipboard History</button>
             <button class="preferences-btn" onclick="window.location.href='preferences.html'">User Preferences</button>
-            <button class="logout-btn" onclick="window.location.href='login.html'">Log out</button>
+            <button class="logout-btn" onclick="logout()">Log out</button>
         </div>
 
         <script>
-            // Test backend connection when page loads
+            // Check authentication and load user info
             window.onload = async () => {
+                // Check if user is authenticated
+                if (!window.backend.auth.isLoggedIn()) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Display user info
+                const username = window.backend.auth.getUsername();
+                document.getElementById('current-user').textContent = `Welcome, ${username}!`;
+
+                // Test backend connection and show security status
                 try {
-                    const result = await window.backend.testConnection()
-                    document.getElementById('connection-status').innerHTML = 
-                        `Backend Status: ${result.status}<br>Message: ${result.message}`
+                    const result = await window.backend.testConnection();
+                    const statusElement = document.getElementById('connection-status');
+                    
+                    if (result.status === 'ok') {
+                        statusElement.innerHTML = `
+                            <div class="status-ok">
+                                <strong>🔒 ClipVault Secure</strong><br>
+                                Backend: Connected<br>
+                                Encryption: ${result.security?.encryption_working ? '✅ Active' : '❌ Error'}<br>
+                                Keys: ${result.security?.keys_available ? '✅ Available' : '❌ Missing'}
+                            </div>
+                        `;
+                        statusElement.style.color = '#28a745';
+                    } else {
+                        statusElement.innerHTML = `<div class="status-error">❌ Backend Error</div>`;
+                        statusElement.style.color = '#dc3545';
+                    }
                 } catch (error) {
-                    document.getElementById('connection-status').innerHTML = 
-                        'Error: Could not connect to backend'
+                    console.error('Connection test failed:', error);
+                    document.getElementById('connection-status').innerHTML = `
+                        <div class="status-error">❌ Could not connect to backend</div>
+                    `;
+                    document.getElementById('connection-status').style.color = '#dc3545';
+                }
+            }
+
+            // Secure logout function
+            function logout() {
+                if (confirm('Are you sure you want to log out?')) {
+                    window.backend.auth.logout();
                 }
             }
 

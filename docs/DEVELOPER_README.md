@@ -1,42 +1,29 @@
-# ClipVault Developer Guide
+# Developer Guide
 
-Everything you need to run, develop, and test the app locally.
+Concise steps to run, test, and package.
 
-## Overview
+## Prereqs
 
-- Backend: FastAPI (Python), local SQLite files (`clipboard_history.db`, `clipboard_history.txt`)
-- Frontend: Electron Forge app (Node.js)
-- Frontend talks to backend at `http://127.0.0.1:8000`
+- Windows/macOS/Linux, Python 3.11+, Node.js 18+.
 
-## Prerequisites
-
-- Windows (project targeted, but Electron is cross‑platform)
-- Python 3.11+
-- Node.js 18+ and npm
-
-## Backend setup
+## Backend
 
 ```powershell
 cd backend
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install --upgrade pip
+python -m venv .venv; .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 python main.py
 ```
 
-### Tests
+Tests + coverage:
 
 ```powershell
-python -m pytest tests -v
+python -m pytest --cov=. --cov-report=term-missing -q
 ```
 
-### Useful files
+Key files: `main.py`, `database.py`, `clipboard.py`, `auth.py`.
 
-- `database.py`, `clipboard.py`, `auth.py`, `main.py`
-- Data files: `clipboard_history.db`, `clipboard_history.txt`
-
-## Frontend setup
+## Frontend
 
 ```powershell
 cd frontend
@@ -44,9 +31,13 @@ npm install
 npm start
 ```
 
-Electron opens and loads `home.html`. The preload script calls the backend at `http://127.0.0.1:8000`.
+Tests + coverage:
 
-### Packaging
+```powershell
+npm test -- --coverage
+```
+
+Package:
 
 ```powershell
 npm run package
@@ -54,31 +45,12 @@ npm run package
 npm run make
 ```
 
-### Frontend tests (Jest + jsdom)
+## Coverage (Codecov)
 
-Install dev dependencies (first time):
+CI uploads backend `coverage.xml` and frontend `lcov.info`. Badges in the root README auto-update for this public repo.
 
-```powershell
-cd frontend
-npm install --save-dev jest @jest/globals jest-environment-jsdom
-```
+## Tips
 
-Run tests:
-
-```powershell
-npm test
-```
-
-`package.json` configures Jest to use the `jsdom` test environment.
-
-## Common development tasks
-
-- Change backend port: update `uvicorn.run` in `backend/main.py` and the `API_URL` in `frontend/preload.js`.
-- Add new API endpoint: implement in `backend/main.py`, add logic in `frontend/preload.js`, and call from your UI pages.
-- Update dependencies: backend in `backend/requirements.txt`, frontend in `frontend/package.json`.
-
-## Troubleshooting
-
-- ModuleNotFoundError (e.g., passlib): ensure venv is active and `pip install -r requirements.txt` ran.
-- Electron fails to start: check Node version, run `npm install` again, and check `electron` version in `frontend/package.json`.
-- Backend connection errors from frontend: confirm backend is running and `API_URL` is correct in `preload.js`.
+- Backend URL lives in `frontend/preload.js` (API_URL).
+- Clipboard monitoring is disabled in tests/CI.
+- If you make new endpoints, add tests and update the preload bridge.

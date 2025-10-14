@@ -12,7 +12,7 @@ let loginBtn;
 beforeEach(() => {
   document.documentElement.innerHTML = html.toString();
   global.submitLogin = jest.fn();
-  loginBtn = document.getElementById("login-btn");
+  loginBtn = document.getElementById("openLogin");
 });
 
 test("login button exists", () => {
