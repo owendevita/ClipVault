@@ -12,7 +12,9 @@ let loginBtn;
 beforeEach(() => {
   document.documentElement.innerHTML = html.toString();
   global.submitLogin = jest.fn();
-  loginBtn = document.getElementById("login-btn");
+  let modal_switch = document.getElementById("openLogin")
+  modal_switch.click()
+  loginBtn = document.getElementById("submitLogin");
 });
 
 test("login button exists", () => {
