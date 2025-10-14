@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1760434400578" clover="3.2.0">
-  <project timestamp="1760434400578" name="All files">
+<coverage generated="1760434861879" clover="3.2.0">
+  <project timestamp="1760434861879" name="All files">
     <metrics statements="243" coveredstatements="119" conditionals="135" coveredconditionals="41" methods="28" coveredmethods="11" elements="406" coveredelements="171" complexity="0" loc="243" ncloc="243" packages="1" files="2" classes="2"/>
     <file name="login.js" path="C:\Users\Muhammad\Documents\GitHub\ClipVault\frontend\login.js">
       <metrics statements="94" coveredstatements="69" conditionals="50" coveredconditionals="23" methods="10" coveredmethods="5"/>
