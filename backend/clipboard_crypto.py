@@ -32,7 +32,7 @@ class SecureMemory:
             
             # Avoid risky ctypes memory overwrites by default (can cause access violations on Windows)
             # Enable only if explicitly opted-in for specialized environments.
-            if os.getenv("CLIPVAULT_ENABLE_CTYPE_CLEAR", "0") == "1" and sys.platform == "win32":
+            if SecureMemory._ctype_clear_enabled() and sys.platform == "win32":
                 try:
                     address = id(s)
                     size = sys.getsizeof(s)
@@ -58,6 +58,11 @@ class SecureMemory:
             gc.collect()
         except Exception as e:
             logger.debug(f"Bytes clearing attempt failed: {e}")
+
+    @staticmethod
+    def _ctype_clear_enabled() -> bool:
+        """Return True if dangerous ctypes clearing is explicitly enabled via env."""
+        return os.getenv("CLIPVAULT_ENABLE_CTYPE_CLEAR", "0") == "1"
 
 class ClipboardCrypto:
     """Handles encryption and decryption of clipboard content"""

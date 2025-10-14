@@ -1,3 +1,6 @@
+// Shared constants
+const HOTKEY_HELP_TEXT = "Press new key combination...";
+
 // Auth check
 window.addEventListener('DOMContentLoaded', () => {
     if (!window.backend.auth.isLoggedIn()) {
@@ -153,9 +156,8 @@ function initHotkeyManagement() {
             currentCombo = [];
             activeButton = btn;
             // Show a helpful prompt when the popup opens
-            const helperText = "Press new key combination...";
             const target = document.getElementById("hotkey-display");
-            if (target) target.textContent = helperText;
+            if (target) target.textContent = HOTKEY_HELP_TEXT;
             popup.style.display = "flex";
             if (!listenerAttached) {
                 window.addEventListener("keydown", handleKeydown);
@@ -233,7 +235,7 @@ if (typeof module !== 'undefined' && module.exports) {
             btn.addEventListener('click', () => {
                 currentCombo = [];
                 activeButton = btn;
-                hotkeyDisplay.textContent = 'Press new key combination...';
+                hotkeyDisplay.textContent = HOTKEY_HELP_TEXT;
                 popup.style.display = 'flex';
             });
         });
@@ -241,7 +243,7 @@ if (typeof module !== 'undefined' && module.exports) {
         saveBtn.addEventListener('click', () => {
             const comboString = currentCombo.join(' + ');
             if (!comboString) {
-                hotkeyDisplay.textContent = 'Please press a valid key combination!';
+                hotkeyDisplay.textContent = 'Please press a valid key combo!';
                 return;
             }
             if (activeButton) savedCombos.delete(activeButton.textContent.trim());

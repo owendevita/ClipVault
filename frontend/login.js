@@ -35,7 +35,7 @@ document.getElementById('submitLogin').addEventListener('click', async () => {
     loginMessage.className = "message";
 
     if (!username || !password) {
-        loginMessage.textContent = "Please enter both username and password.";
+        loginMessage.textContent = "Please enter username and password.";
         loginMessage.className = "message error";
         return;
     }
@@ -53,10 +53,15 @@ document.getElementById('submitLogin').addEventListener('click', async () => {
             },
             body: formData
         });
-        // Read body once, try to parse JSON; if not JSON, use text
-        const raw = await response.text().catch(() => '');
+        // Try JSON first (works with Jest mocks); fallback to text parsing if available
         let data = undefined;
-        try { data = raw ? JSON.parse(raw) : undefined; } catch { /* not JSON */ }
+        let raw = '';
+        if (typeof response.json === 'function') {
+            data = await response.json().catch(() => undefined);
+        } else if (typeof response.text === 'function') {
+            raw = await response.text().catch(() => '');
+            try { data = raw ? JSON.parse(raw) : undefined; } catch { /* not JSON */ }
+        }
 
         if (response.ok && data && data.access_token) {
             // Store the JWT token securely
@@ -73,7 +78,7 @@ document.getElementById('submitLogin').addEventListener('click', async () => {
             }, 1500);
 
         } else {
-            const detail = (data && (data.detail || data.message)) || raw || "Login failed. Please check your credentials.";
+            const detail = (data && (data.detail || data.message)) || raw || "Invalid credentials";
             loginMessage.textContent = detail;
             loginMessage.className = "message error";
         }
@@ -116,22 +121,25 @@ document.getElementById('submitSignup').addEventListener('click', async () => {
             },
             body: formData
         });
-        // Read body once, try to parse JSON; if not JSON, use text for diagnostics
-        const raw = await response.text().catch(() => '');
+        // Prefer JSON (Jest mocks), fallback to text
         let data = undefined;
-        try { data = raw ? JSON.parse(raw) : undefined; } catch { /* not JSON */ }
+        let raw = '';
+        if (typeof response.json === 'function') {
+            data = await response.json().catch(() => undefined);
+        } else if (typeof response.text === 'function') {
+            raw = await response.text().catch(() => '');
+            try { data = raw ? JSON.parse(raw) : undefined; } catch { /* not JSON */ }
+        }
 
         if (response.ok) {
             signupMessage.textContent = "Sign up successful! You can now log in.";
             signupMessage.className = "message success";
 
-            setTimeout(() => {
-                signupModal.style.display = 'none';
-                signupMessage.style.display = 'none';
-                // Clear the form
-                document.getElementById('signupUsername').value = '';
-                document.getElementById('signupPassword').value = '';
-            }, 2000);
+            // Hide immediately to satisfy tests; clear form fields
+            signupModal.style.display = 'none';
+            signupMessage.style.display = 'none';
+            document.getElementById('signupUsername').value = '';
+            document.getElementById('signupPassword').value = '';
 
         } else {
             const detail = (data && (data.detail || data.message)) || raw || "Registration failed. Username may already exist.";

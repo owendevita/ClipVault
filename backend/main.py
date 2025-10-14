@@ -92,17 +92,31 @@ app.add_middleware(SecurityHeadersMiddleware)
 clipboard = ClipboardManager()
 db = ClipboardDB()
 
-# CORS (dev-friendly): allow any origin. Tighten for prod as needed.
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[],                 # use regex instead to allow dynamic origins
-    allow_origin_regex=".*",         # DEV: allow any origin including 'null' (file://)
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-    expose_headers=["*"],
-    max_age=600,
-)
+# CORS: default dev-friendly, configurable via env for production
+allowed_origins_env = os.getenv("CORS_ALLOWED_ORIGINS", "")
+if allowed_origins_env:
+    origins = [o.strip() for o in allowed_origins_env.split(",") if o.strip()]
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["*"],
+        max_age=600,
+    )
+else:
+    # DEV fallback: allow any origin including 'null' (file://). Do NOT use in production.
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[],
+        allow_origin_regex=".*",
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["*"],
+        max_age=600,
+    )
 
 @app.get("/")
 async def root():
