@@ -15,7 +15,7 @@ function createWindow() {
     })
 
 
-    mainWindow.loadFile('home.html')
+    mainWindow.loadFile('login.html')
 }
 
 function startBackend() {
