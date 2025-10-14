@@ -18,7 +18,7 @@ function createWindow() {
         }
     })
 
-    // Start with login page - security first!
+    // Start with login page
     mainWindow.loadFile(path.join(__dirname, 'login.html'))
     
     // Set window title

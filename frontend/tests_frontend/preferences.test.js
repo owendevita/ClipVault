@@ -7,12 +7,11 @@ global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 
 const { JSDOM } = require("jsdom");
-const { initPreferences } = require("../preferences.js"); // adjust path if needed
+const { initPreferences } = require("../preferences.js");
 
 let window, document, popup, hotkeyDisplay, saveBtn, cancelBtn, hotkeyButtons, prefs;
 
 beforeEach(() => {
-  // Minimal neutral HTML for testing
   const dom = new JSDOM(`
     <div id="hotkey-popup" style="display: none;"></div>
     <p id="hotkey-display"></p>
@@ -31,7 +30,6 @@ beforeEach(() => {
   cancelBtn = document.getElementById("cancel-hotkey-btn");
   hotkeyButtons = document.querySelectorAll(".hotkey-btn");
 
-  // IMPORTANT: assign prefs to capture handleKeydown
   prefs = initPreferences({
     popup,
     hotkeyDisplay,
@@ -61,7 +59,6 @@ test("cancel button hides popup", () => {
 test("Escape key hides popup", () => {
   hotkeyButtons[0].click();
 
-  // Use handleKeydown from the same initPreferences instance
   prefs.handleKeydown({
     key: "Escape",
     ctrlKey: false,
@@ -77,10 +74,8 @@ test("Escape key hides popup", () => {
 test("saving new hotkey updates button text", () => {
   const btn = hotkeyButtons[0];
 
-  // Open popup
   btn.click();
 
-  // Use handleKeydown from the same initPreferences instance
   prefs.handleKeydown({
     key: "X",
     ctrlKey: true,
@@ -90,9 +85,52 @@ test("saving new hotkey updates button text", () => {
     preventDefault: () => {},
   });
 
-  // Click save button
   saveBtn.click();
 
   expect(btn.textContent).toBe("CTRL + X");
   expect(popup.style.display).toBe("none");
+});
+
+test("duplicate hotkey combos are prevented", () => {
+  const btn1 = hotkeyButtons[0];
+  const btn2 = hotkeyButtons[1];
+
+  btn1.click();
+  prefs.handleKeydown({
+    key: "C",
+    ctrlKey: true,
+    shiftKey: false,
+    altKey: false,
+    metaKey: false,
+    preventDefault: () => {},
+  });
+  saveBtn.click();
+
+  expect(btn1.textContent).toBe("CTRL + X");
+  expect(hotkeyDisplay.textContent).toBe("Combo already in use!");
+});
+
+test("hotkey popup ignores key presses when closed", () => {
+  expect(popup.style.display).toBe("none");
+
+  prefs.handleKeydown({
+    key: "A",
+    ctrlKey: true,
+    shiftKey: false,
+    altKey: false,
+    metaKey: false,
+    preventDefault: () => {},
+  });
+
+  expect(hotkeyDisplay.textContent).toBe("");
+});
+
+test("saving invalid combo shows message", () => {
+  const btn = hotkeyButtons[0];
+  btn.click();
+
+  saveBtn.click();
+
+  expect(hotkeyDisplay.textContent).toBe("Please press a valid key combo!");
+  expect(popup.style.display).toBe("flex");
 });
