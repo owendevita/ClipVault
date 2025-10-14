@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Body, Depends, HTTPException
+from fastapi import FastAPI, Body, Depends, HTTPException, Path
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from clipboard import ClipboardManager
@@ -55,6 +55,13 @@ async def get_history(limit: int = 10):
 @app.delete("/clipboard/clear-history")
 async def clear_history():
     return db.clear_history()
+
+@app.delete("/clipboard/delete/{entry_id}")
+async def delete_entry(entry_id: int = Path(..., description="The ID of the clipboard entry to delete")):
+    deleted = db.delete_entry(entry_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Entry not found")
+    return {"message": f"Entry {entry_id} deleted successfully"}
 
 # Test endpoint for frontend connection
 @app.get("/test-connection")
