@@ -1,11 +1,17 @@
 const { spawn } = require('child_process');
 const path = require('path');
+const fs = require('fs');
 
 describe('Electron app smoke test', () => {
   jest.setTimeout(15000); 
 
-  test('launches without immediate errors', done => {
-    const appPath = path.join(__dirname, '../out/ClipVault-win32-x64/ClipVault.exe');
+  const appPath = path.join(__dirname, '../out/ClipVault-win32-x64/ClipVault.exe');
+  const isCI = (process.env.CI || '').toString().toLowerCase() === 'true' || !!process.env.GITHUB_ACTIONS;
+  const hasBinary = fs.existsSync(appPath);
+
+  const maybeTest = (isCI || !hasBinary) ? test.skip : test;
+
+  maybeTest('launches without immediate errors', done => {
 
     const child = spawn(appPath, [], { stdio: 'pipe' });
 

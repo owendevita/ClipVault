@@ -35,24 +35,11 @@ The API will be available at http://127.0.0.1:8000.
 python -m pytest tests -v
 ```
 
-Or run the helper:
-
-```powershell
-python tests/run_tests.py
-```
-
 Note: JavaScript tests (Jest + jsdom) are used in the frontend; backend tests use pytest only.
 
 ## Data files
 
-- `clipboard_history.db`: SQLite database
-- `clipboard_history.txt`: human-readable log
-
-View the text log:
-
-```powershell
-type clipboard_history.txt
-```
+- `clipboard_history.db`: SQLite database (encrypted entries)
 
 ## Dependencies
 

@@ -4,9 +4,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from database import ClipboardDB
 
 def test_database_operations():
-    # Initialize database with test-specific files
-    # This prevents interference with production database
-    db = ClipboardDB("test_clipboard.db", "test_clipboard.txt")
+    # Initialize database with test-specific SQLite file only
+    db = ClipboardDB("test_clipboard.db")
     
     # Test adding and retrieving content from database
     test_content = "Test Database Content"
