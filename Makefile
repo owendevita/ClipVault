@@ -2,24 +2,15 @@
 
 all: backend frontend
 
-# If running in CI, skip heavy packaging steps; dedicated test jobs handle correctness.
-ifeq ($(CI),true)
-backend:
-	@echo ">>> CI detected: skipping backend packaging (handled by tests job)"
-
-frontend:
-	@echo ">>> CI detected: skipping Electron make (handled by tests job)"
-else
 backend:
 	@echo ">>> Building backend executable..."
-	@echo ">>> Creating virtual environment (backend/.venv) if missing..."
-	python -m venv backend/.venv || true
-	backend/.venv/Scripts/python -m pip install --upgrade pip
-	backend/.venv/Scripts/python -m pip install -r backend/requirements.txt
-	backend/.venv/Scripts/python -m pip install pyinstaller
-	backend/.venv/Scripts/python -m PyInstaller --noconsole --onefile --name backend backend/main.py
+	@echo ">>> Using workflow venv at backend/venv"
+	backend/venv/Scripts/python -m pip install --upgrade pip
+	backend/venv/Scripts/python -m pip install -r backend/requirements.txt
+	backend/venv/Scripts/python -m pip install pyinstaller
+	backend/venv/Scripts/python -m PyInstaller --noconsole --onefile --hidden-import=passlib.handlers.pbkdf2_sha256 --name backend backend/main.py
 	@echo ">>> Copying backend executable into Electron resources..."
-	backend/.venv/Scripts/python - <<PY
+	backend/venv/Scripts/python - <<PY
 import os, shutil, sys
 os.makedirs('frontend/resources', exist_ok=True)
 src = 'dist/backend.exe' if os.name == 'nt' else 'dist/backend'
@@ -33,7 +24,6 @@ frontend:
 	@echo ">>> Building Electron app with Forge..."
 	cd frontend && npm install && npm run make
 	@echo ">>> Electron Forge build complete."
-endif
 
 clean:
 	@echo ">>> Cleaning up build artifacts..."
