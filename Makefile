@@ -8,7 +8,7 @@ backend:
 	backend/venv/Scripts/python -m pip install --upgrade pip
 	backend/venv/Scripts/python -m pip install -r backend/requirements.txt
 	backend/venv/Scripts/python -m pip install pyinstaller
-	backend/venv/Scripts/python -m PyInstaller --noconsole --onefile --hidden-import=passlib.handlers.pbkdf2_sha256 --name backend backend/main.py
+	backend/venv/Scripts/python -m PyInstaller --noconsole --onefile --hidden-import=passlib.handlers.pbkdf2_sha256 --hidden-import=passlib.handlers.pbkdf2 --name backend backend/main.py
 	@echo ">>> Copying backend executable into Electron resources..."
 	backend/venv/Scripts/python -c 'import os,shutil; os.makedirs("frontend/resources", exist_ok=True); src="dist/backend.exe" if os.name=="nt" else "dist/backend"; dst=os.path.join("frontend","resources", os.path.basename(src)); shutil.copy(src, dst); print(f"Copied {src} -> {dst}")'
 	@echo ">>> Backend build complete and copied."
