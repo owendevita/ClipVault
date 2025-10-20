@@ -213,3 +213,5 @@ out/
 backend/clipboard_history.db
 *.db
 frontend/resources
+backend/clipboard_history.db-shm
+backend/clipboard_history.db-wal

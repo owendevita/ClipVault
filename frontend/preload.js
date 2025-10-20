@@ -1,4 +1,4 @@
-const { contextBridge } = require('electron')
+const { contextBridge, ipcRenderer } = require('electron')
 
 // Backend API URL
 const API_URL = 'http://127.0.0.1:8000'
@@ -202,6 +202,10 @@ contextBridge.exposeInMainWorld(
                 window.location.href = 'login.html';
             }
         },
+        
+        sendAuthToken(token) {
+            ipcRenderer.send('auth-token', token)
+        },
         // Get user preferences
         async getPreferences() {
             try {
@@ -234,7 +238,6 @@ contextBridge.exposeInMainWorld(
 
         // Exit the application
         exitApp() {
-            const { ipcRenderer } = require('electron')
             ipcRenderer.send('exit-app')
         }
     }
