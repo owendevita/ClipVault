@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, Notification } = require('electron')
 const path = require('path')
 const { spawn } = require('child_process');
 const { exec } = require('child_process');
@@ -6,6 +6,7 @@ const fs = require('fs');
 const http = require('http');
 
 let backendProcess = null; 
+let userToken = null; // store user's JWT for clipboard watcher
 
 function createWindow() {
     const mainWindow = new BrowserWindow({
@@ -110,6 +111,60 @@ ipcMain.on('exit-app', () => {
     stopBackend()
     app.quit()
 })
+
+// Receive JWT token from renderer
+ipcMain.on('auth-token', (event, token) => {
+    userToken = token;
+    // start clipboard watcher once we have token
+    startClipboardWatcher();
+})
+
+// Watch clipboard for new copies and show notification
+let clipboardWatcherInterval = null;
+let lastClipboardContent = null;
+
+function startClipboardWatcher() {
+    if (!userToken) return;
+
+    if (clipboardWatcherInterval) clearInterval(clipboardWatcherInterval);
+
+    clipboardWatcherInterval = setInterval(async () => {
+        try {
+            const req = http.request({
+                host: '127.0.0.1',
+                port: 8000,
+                path: '/clipboard/current',
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${userToken}` },
+                timeout: 1000
+            }, (res) => {
+                let data = '';
+                res.on('data', chunk => data += chunk);
+                res.on('end', () => {
+                    try {
+                        const json = JSON.parse(data);
+                        if (json.content && json.content !== lastClipboardContent) {
+                            lastClipboardContent = json.content;
+                            new Notification({
+                                title: 'Clipboard Updated',
+                                body: 'New clipboard entry copied!',
+                                silent: true
+                            }).show();
+                        }
+                    } catch (e) {
+                        console.error('Clipboard watcher error parsing JSON', e);
+                    }
+                });
+            });
+            req.on('error', (err) => {
+                console.error('Clipboard watcher request error', err);
+            });
+            req.end();
+        } catch (e) {
+            console.error('Clipboard watcher error', e);
+        }
+    }, 1000);
+}
 
 
 
