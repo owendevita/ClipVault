@@ -1,6 +1,4 @@
-# ClipVault Frontend (Electron)
-
-Electron Forge app that provides the UI and talks to the FastAPI backend.
+# Frontend (Electron)
 
 ## Prerequisites
 
@@ -14,15 +12,15 @@ Electron Forge app that provides the UI and talks to the FastAPI backend.
 npm install
 ```
 
-## Run (development)
+## Run
 
 ```powershell
 npm start
 ```
 
-This launches Electron and loads `login.html`. The renderer uses `preload.js` to call the backend at `http://127.0.0.1:8000`.
+Loads `login.html`; renderer calls backend via `preload.js` at `http://127.0.0.1:8000`.
 
-## Package (distributables)
+## Package
 
 ```powershell
 npm run package
@@ -30,27 +28,18 @@ npm run package
 npm run make
 ```
 
-Artifacts will be created under `out/`.
+Outputs land in `out/`.
 
-## Configuration notes
+## Config
 
 - Backend URL is currently hard-coded in `preload.js` (API_URL). If you change the backend host/port, update it there.
 - Electron Forge config lives in `forge.config.js`.
 
-## Tests (Jest + jsdom)
-
-We use Jest with the jsdom environment for frontend/renderer tests.
-
-Install dev deps (first time):
-
-```powershell
-npm install --save-dev jest @jest/globals jest-environment-jsdom
-```
+## Tests
 
 Run tests:
 
 ```powershell
 npm test
 ```
-
-Jest is configured to use `jsdom` via the `jest` field in `package.json`.
+Jest uses `jsdom` (set in `package.json`).

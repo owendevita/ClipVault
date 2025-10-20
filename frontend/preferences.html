@@ -13,23 +13,39 @@
     </div>
 
     <div class="main">
+        <!-- User Info Section -->
+        <div class="user-info-section">
+            <h2>User Information</h2>
+            <div class="info-row">
+                <span>Logged in as:</span>
+                <span id="current-username">Loading...</span>
+            </div>
+        </div>
+
+        <!-- Security Status Section -->
         <div class="security">
-            <h2>Security</h2>
-            <div class="security-box">Encryption Algorithm</div>
+            <h2>🔒 Security Status</h2>
+            <div id="security-status" class="security-status">
+                <p>Loading security status...</p>
+            </div>
+            
+            <div class="security-controls">
+                <h3>Security Management</h3>
+                <div class="security-actions">
+                    <button id="rotate-clipboard-key" class="security-btn warning">
+                        🔄 Rotate Encryption Key
+                    </button>
+                    <p class="warning-text">⚠️ This will make existing encrypted data unreadable!</p>
+                    
+                    <button id="rotate-jwt-secret" class="security-btn warning">
+                        🔄 Rotate Authentication Key
+                    </button>
+                    <p class="warning-text">⚠️ This will log out all users!</p>
+                </div>
+            </div>
         </div>
 
-        <div class="hotkeys">
-            <h2>Hotkeys</h2>
-            <div class="hotkey-row">
-                <span>Copy Keybind</span>
-                <button class="hotkey-btn">CTRL + C</button>
-            </div>
-            <div class="hotkey-row">
-                <span>Paste Keybind</span>
-                <button class="hotkey-btn">CTRL + V</button>
-            </div>
-        </div>
-
+        <!-- App Behavior Section -->
         <div class="app-behavior">
             <h2>App Behavior</h2>
             <div class="toggle-row">
@@ -38,6 +54,14 @@
                     <input type="checkbox" checked>
                     <span class="slider"></span>
                 </label>
+            </div>
+            <div class="toggle-row">
+                <span>Auto-encrypt Content</span>
+                <label class="switch">
+                    <input type="checkbox" checked disabled>
+                    <span class="slider"></span>
+                </label>
+                <small style="color: #666; margin-left: 10px;">Always enabled for security</small>
             </div>
             <div class="toggle-row">
                 <span>Notify on Clipboard Change</span>
@@ -52,6 +76,19 @@
                     <input type="checkbox" checked>
                     <span class="slider"></span>
                 </label>
+            </div>
+        </div>
+
+        <!-- Hotkeys Section -->
+        <div class="hotkeys">
+            <h2>Hotkeys</h2>
+            <div class="hotkey-row">
+                <span>Copy Keybind</span>
+                <button class="hotkey-btn">CTRL + C</button>
+            </div>
+            <div class="hotkey-row">
+                <span>Paste Keybind</span>
+                <button class="hotkey-btn">CTRL + V</button>
             </div>
         </div>
     </div>

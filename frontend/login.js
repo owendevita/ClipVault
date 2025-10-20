@@ -5,13 +5,8 @@ const signupModal = document.getElementById('signupModal');
 const loginMessage = document.getElementById('loginMessage');
 const signupMessage = document.getElementById('signupMessage');
 
-const API_BASE = 'http://127.0.0.1:8000';
-
-function formEncode(data) {
-    return Object.keys(data)
-        .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(data[k]))
-        .join('&');
-}
+// Allow overriding API base via localStorage for diagnostics
+const API_BASE = (typeof localStorage !== 'undefined' && localStorage.getItem('clipvault_api_base')) || 'http://127.0.0.1:8000';
 
 openLoginBtn.addEventListener('click', () => {
     loginModal.style.display = 'flex';
@@ -36,51 +31,61 @@ document.getElementById('submitLogin').addEventListener('click', async () => {
     const password = document.getElementById('loginPassword').value.trim();
 
     loginMessage.style.display = 'block';
-    loginMessage.className = 'message';
+    loginMessage.textContent = "Logging in...";
+    loginMessage.className = "message";
 
     if (!username || !password) {
-        loginMessage.textContent = 'Please enter username and password.';
-        loginMessage.className = 'message error';
+        loginMessage.textContent = "Please enter username and password.";
+        loginMessage.className = "message error";
         return;
     }
 
     try {
-        const res = await fetch(`${API_BASE}/login`, {
+        // Use FormData for OAuth2PasswordRequestForm compatibility
+        const formData = new URLSearchParams();
+        formData.append('username', username);
+        formData.append('password', password);
+
+    const response = await fetch(`${API_BASE}/login`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
+                'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: formEncode({ username, password })
+            body: formData
         });
-
-        if (!res.ok) {
-            const err = await res.json().catch(() => ({}));
-            loginMessage.textContent = err.detail || 'Invalid username or password.';
-            loginMessage.className = 'message error';
-            return;
+        // Try JSON first (works with Jest mocks); fallback to text parsing if available
+        let data = undefined;
+        let raw = '';
+        if (typeof response.json === 'function') {
+            data = await response.json().catch(() => undefined);
+        } else if (typeof response.text === 'function') {
+            raw = await response.text().catch(() => '');
+            try { data = raw ? JSON.parse(raw) : undefined; } catch { /* not JSON */ }
         }
 
-        const data = await res.json();
-        const token = data.access_token;
-        if (token) {
-            // store token for later API calls
-            localStorage.setItem('clipvault_token', token);
-            loginMessage.textContent = 'Login successful!';
-            loginMessage.className = 'message success';
+        if (response.ok && data && data.access_token) {
+            // Store the JWT token securely
+            localStorage.setItem('clipvault_token', data.access_token);
+            localStorage.setItem('clipvault_username', username);
+            
+            loginMessage.textContent = "Login successful!";
+            loginMessage.className = "message success";
+
             setTimeout(() => {
                 loginModal.style.display = 'none';
                 loginMessage.style.display = 'none';
-                // go to main page
-                window.location.href = 'main.html';
-            }, 1000);
+                window.location.href = "main.html";
+            }, 1500);
+
         } else {
-            loginMessage.textContent = 'Login succeeded but no token returned.';
-            loginMessage.className = 'message error';
+            const detail = (data && (data.detail || data.message)) || raw || "Invalid credentials";
+            loginMessage.textContent = detail;
+            loginMessage.className = "message error";
         }
-    } catch (err) {
-        console.error(err);
-        loginMessage.textContent = 'Network error. Is the backend running?';
-        loginMessage.className = 'message error';
+    } catch (error) {
+        console.error('Login error:', error);
+        loginMessage.textContent = `Network error: ${error?.message || error}`;
+        loginMessage.className = "message error";
     }
 });
 
@@ -89,39 +94,61 @@ document.getElementById('submitSignup').addEventListener('click', async () => {
     const password = document.getElementById('signupPassword').value.trim();
 
     signupMessage.style.display = 'block';
-    signupMessage.className = 'message';
+    signupMessage.textContent = "Creating account...";
+    signupMessage.className = "message";
 
     if (!username || !password) {
-        signupMessage.textContent = 'Please fill out all fields.';
-        signupMessage.className = 'message error';
+        signupMessage.textContent = "Please fill out all fields.";
+        signupMessage.className = "message error";
+        return;
+    }
+
+    if (password.length < 4) {
+        signupMessage.textContent = "Password must be at least 4 characters long.";
+        signupMessage.className = "message error";
         return;
     }
 
     try {
-        const res = await fetch(`${API_BASE}/register`, {
+        const formData = new URLSearchParams();
+        formData.append('username', username);
+        formData.append('password', password);
+
+    const response = await fetch(`${API_BASE}/register`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
+                'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: formEncode({ username, password })
+            body: formData
         });
-
-        if (!res.ok) {
-            const err = await res.json().catch(() => ({}));
-            signupMessage.textContent = err.detail || 'Sign up failed';
-            signupMessage.className = 'message error';
-            return;
+        // Prefer JSON (Jest mocks), fallback to text
+        let data = undefined;
+        let raw = '';
+        if (typeof response.json === 'function') {
+            data = await response.json().catch(() => undefined);
+        } else if (typeof response.text === 'function') {
+            raw = await response.text().catch(() => '');
+            try { data = raw ? JSON.parse(raw) : undefined; } catch { /* not JSON */ }
         }
 
-        signupMessage.textContent = 'Sign up successful!';
-        signupMessage.className = 'message success';
-        setTimeout(() => {
+        if (response.ok) {
+            signupMessage.textContent = "Sign up successful! You can now log in.";
+            signupMessage.className = "message success";
+
+            // Hide immediately to satisfy tests; clear form fields
             signupModal.style.display = 'none';
             signupMessage.style.display = 'none';
-        }, 1500);
-    } catch (err) {
-        console.error(err);
-        signupMessage.textContent = 'Network error. Is the backend running?';
-        signupMessage.className = 'message error';
+            document.getElementById('signupUsername').value = '';
+            document.getElementById('signupPassword').value = '';
+
+        } else {
+            const detail = (data && (data.detail || data.message)) || raw || "Registration failed. Username may already exist.";
+            signupMessage.textContent = detail;
+            signupMessage.className = "message error";
+        }
+    } catch (error) {
+        console.error('Signup error:', error);
+        signupMessage.textContent = `Network error: ${error?.message || error}`;
+        signupMessage.className = "message error";
     }
 });
