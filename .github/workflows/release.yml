@@ -1,0 +1,63 @@
+name: Automatic Release CI/CD
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        node-version: [22.x]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Create Python virtual environment
+        run: python -m venv backend/venv
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Run Makefile (clean + build)
+        run: |
+          make clean
+          make all
+
+      - name: Create version tag
+        id: tag
+        shell: bash
+        run: |
+          VERSION="v$(date +'%Y.%m.%d-%H%M%S')"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Push tag to repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag ${{ steps.tag.outputs.version }}
+          git push origin ${{ steps.tag.outputs.version }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.version }}
+          name: "Release ${{ steps.tag.outputs.version }}"
+          body: "Automated release created from push to main."
+          files: frontend/out/make/zip/win32/x64/**
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
