@@ -202,6 +202,35 @@ contextBridge.exposeInMainWorld(
                 window.location.href = 'login.html';
             }
         },
+        // Get user preferences
+        async getPreferences() {
+            try {
+                const response = await fetch(`${API_URL}/preferences`, {
+                    method: 'GET',
+                    headers: getAuthHeaders()
+                });
+                return await handleResponse(response); // returns a JSON object
+            } catch (error) {
+                console.error('Failed to get preferences:', error);
+                throw error;
+            }
+        },
+
+        // Update user preferences
+        async updatePreferences(preferences) {
+            try {
+                const response = await fetch(`${API_URL}/preferences`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(preferences)
+                });
+                return await handleResponse(response);
+            } catch (error) {
+                console.error('Failed to update preferences:', error);
+                throw error;
+            }
+        },
+
 
         // Exit the application
         exitApp() {

@@ -12,6 +12,7 @@ from auth import create_access_token, get_current_user, rotate_jwt_secret
 from clipboard_crypto import clipboard_crypto, SecureMemory, SecureString
 from secure_storage import key_manager
 import os
+import json
 
 # Logging
 logging.basicConfig(
@@ -369,6 +370,24 @@ async def get_raw_history(limit: int = 10, user: str = Depends(get_current_user)
     except Exception as e:
         logger.error(f"Failed to get raw history for user {user}: {e}")
         raise HTTPException(status_code=500, detail="Failed to get raw history")
+
+@app.get("/preferences")
+async def get_preferences(user: str = Depends(get_current_user)):
+    prefs = db.get_user_preferences(user)
+    return prefs
+
+@app.post("/preferences")
+async def update_preferences(preferences: dict, user: str = Depends(get_current_user)):
+    import json
+    logger.info(f"Updating preferences for {user}: {json.dumps(preferences)}")
+    try:
+        result = db.update_user_preferences(user, preferences)
+        logger.info(f"Update result: {result}")
+        return {"status": "ok"}
+    except Exception as e:
+        logger.error(f"Failed to update preferences for {user}: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to update preferences")
+
 
 if __name__ == "__main__":
     host = os.getenv("HOST", "127.0.0.1")

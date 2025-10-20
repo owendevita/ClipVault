@@ -1,15 +1,16 @@
-// Shared constants
+const BACKEND_URL = "http://127.0.0.1:8000";
 const HOTKEY_HELP_TEXT = "Press new key combination...";
 
 // Auth check
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
     if (!window.backend.auth.isLoggedIn()) {
         window.location.href = 'login.html';
         return;
     }
-    
+
     loadUserInfo();
-    loadSecurityStatus();
+    await loadSecurityStatus();
+    await loadPreferences();   
     setupEventListeners();
 });
 
@@ -22,10 +23,10 @@ function loadUserInfo() {
 // Security status
 async function loadSecurityStatus() {
     const statusElement = document.getElementById('security-status');
-    
+
     try {
         const securityStatus = await window.backend.getSecurityStatus();
-        
+
         statusElement.innerHTML = `
             <div class="security-item ${securityStatus.encryption_working ? 'status-good' : 'status-bad'}">
                 <strong>🔐 Encryption:</strong> ${securityStatus.encryption_working ? '✅ Active' : '❌ Error'}
@@ -40,7 +41,6 @@ async function loadSecurityStatus() {
                 <strong>🕐 Last Updated:</strong> ${new Date(securityStatus.timestamp * 1000).toLocaleString()}
             </div>
         `;
-        
     } catch (error) {
         console.error('Failed to load security status:', error);
         statusElement.innerHTML = `
@@ -51,14 +51,73 @@ async function loadSecurityStatus() {
     }
 }
 
-// Wire buttons + hotkeys
+// Preferences handling
+async function loadPreferences() {
+    try {
+        const prefs = await window.backend.getPreferences();
+
+        if (!prefs || typeof prefs !== 'object') {
+            return;
+        }
+
+        document.querySelectorAll(".pref-toggle").forEach(toggle => {
+            const key = toggle.dataset.pref;
+            if (prefs.hasOwnProperty(key)) {
+                toggle.checked = Boolean(prefs[key]);
+            }
+        });
+
+        // Apply hotkeys if present
+        if (prefs.hotkeys && typeof prefs.hotkeys === 'object') {
+            const hotkeyButtons = document.querySelectorAll(".hotkey-btn");
+            if (hotkeyButtons[0] && prefs.hotkeys.copy) hotkeyButtons[0].textContent = prefs.hotkeys.copy;
+            if (hotkeyButtons[1] && prefs.hotkeys.paste) hotkeyButtons[1].textContent = prefs.hotkeys.paste;
+        }
+
+    } catch (error) {
+        console.error("Failed to load preferences:", error);
+    }
+}
+
+async function savePreferences() {
+    // Build the preferences object dynamically from elements with data-pref
+    const preferences = {};
+    document.querySelectorAll(".pref-toggle").forEach(toggle => {
+        const key = toggle.dataset.pref;
+        preferences[key] = toggle.checked;
+    });
+
+    // Also include hotkeys from buttons (keeps one source of truth)
+    const hotkeyButtons = document.querySelectorAll(".hotkey-btn");
+    preferences.hotkeys = {
+        copy: hotkeyButtons[0] ? hotkeyButtons[0].textContent.trim() : undefined,
+        paste: hotkeyButtons[1] ? hotkeyButtons[1].textContent.trim() : undefined
+    };
+
+    try {
+        // Use the backend bridge
+        await window.backend.updatePreferences(preferences);
+    } catch (error) {
+        console.error("Failed to update preferences:", error);
+    }
+}
+
 function setupEventListeners() {
-    // Security management buttons
     document.getElementById('rotate-clipboard-key').addEventListener('click', rotateClipboardKey);
     document.getElementById('rotate-jwt-secret').addEventListener('click', rotateJWTSecret);
-    
-    // Hotkey management
+
+    document.querySelectorAll(".pref-toggle").forEach(toggle => {
+        toggle.addEventListener("change", savePreferences);
+    });
+
     initHotkeyManagement();
+
+    const saveHotkeyBtn = document.getElementById("save-hotkey-btn");
+    if (saveHotkeyBtn) {
+        saveHotkeyBtn.addEventListener("click", async () => {
+            await savePreferences();
+        });
+    }
 }
 
 // Rotate clipboard key
@@ -67,16 +126,15 @@ async function rotateClipboardKey() {
         '⚠️ WARNING: Rotating the clipboard encryption key will make ALL existing encrypted clipboard data unreadable!\n\n' +
         'This action cannot be undone. Are you absolutely sure you want to continue?'
     );
-    
     if (!confirmed) return;
-    
+
     const doubleConfirm = confirm('This is your final warning. All existing clipboard history will be lost. Continue?');
     if (!doubleConfirm) return;
-    
+
     try {
-        const result = await window.backend.rotateClipboardKey();
+        await window.backend.rotateClipboardKey();
         alert('✅ Clipboard encryption key rotated successfully!\n\nAll existing encrypted data is now inaccessible.');
-        loadSecurityStatus(); // Refresh status
+        loadSecurityStatus();
     } catch (error) {
         console.error('Failed to rotate clipboard key:', error);
         alert('❌ Failed to rotate clipboard key. Please try again.');
@@ -89,14 +147,11 @@ async function rotateJWTSecret() {
         '⚠️ WARNING: Rotating the JWT secret key will log out ALL users!\n\n' +
         'You will need to log in again after this action. Continue?'
     );
-    
     if (!confirmed) return;
-    
+
     try {
-        const result = await window.backend.rotateJWTSecret();
+        await window.backend.rotateJWTSecret();
         alert('✅ JWT secret key rotated successfully!\n\nAll users have been logged out for security.');
-        
-        // Force logout after key rotation
         window.backend.auth.logout();
     } catch (error) {
         console.error('Failed to rotate JWT secret:', error);
@@ -112,7 +167,7 @@ function initHotkeyManagement() {
     const cancelBtn = document.getElementById("cancel-hotkey-btn");
     const hotkeyButtons = document.querySelectorAll(".hotkey-btn");
     const isMac = typeof navigator !== "undefined" && navigator.platform.toUpperCase().includes("MAC");
-    
+
     let currentCombo = [];
     let activeButton = null;
     const savedCombos = new Set();
