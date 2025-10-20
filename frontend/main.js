@@ -42,7 +42,8 @@ function startBackend() {
             detached: false,
             stdio: 'pipe',
             windowsHide: true,
-            env: { ...process.env, CLIPVAULT_DISABLE_CLIPBOARD: process.env.CLIPVAULT_DISABLE_CLIPBOARD ?? '1' },
+            // Force clipboard monitoring ON in packaged builds
+            env: { ...process.env, CLIPVAULT_DISABLE_CLIPBOARD: '0' },
         });
     } else {
         // In development, use direct python execution

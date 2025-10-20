@@ -24,7 +24,9 @@ class ClipboardDB:
             # In-memory DB for tests to avoid Windows file locks
             self._conn = sqlite3.connect(":memory:", timeout=10, check_same_thread=False)
         else:
-            self._conn = sqlite3.connect(self.db_path, timeout=10, check_same_thread=False)
+            # Use absolute path to avoid relative path issues in packaged apps
+            abs_db_path = os.path.abspath(self.db_path)
+            self._conn = sqlite3.connect(abs_db_path, timeout=30, check_same_thread=False)
         try:
             c = self._conn.cursor()
             c.execute("PRAGMA journal_mode=WAL;")
