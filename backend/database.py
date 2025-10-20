@@ -5,6 +5,7 @@ import os
 import logging
 from passlib.context import CryptContext
 from clipboard_crypto import clipboard_crypto, SecureMemory, SecureString
+import json
 
 from passlib.context import CryptContext
 
@@ -58,17 +59,27 @@ class ClipboardDB:
             conn = self._connect()
             c = conn.cursor()
             c.execute('''
-            CREATE TABLE IF NOT EXISTS clipboard_history
-            (id INTEGER PRIMARY KEY AUTOINCREMENT,
-             content TEXT NOT NULL,
-             timestamp TEXT NOT NULL)
-        ''')
+                CREATE TABLE IF NOT EXISTS clipboard_history (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    content TEXT NOT NULL,
+                    timestamp TEXT NOT NULL
+                )
+            ''')
+
             c.execute('''
-            CREATE TABLE IF NOT EXISTS users
-            (id INTEGER PRIMARY KEY AUTOINCREMENT,
-             username TEXT UNIQUE NOT NULL,
-             password_hash TEXT NOT NULL)
-        ''')
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT UNIQUE NOT NULL,
+                    password_hash TEXT NOT NULL,
+                    preferences TEXT DEFAULT '{}'
+                )
+            ''')
+
+            c.execute("PRAGMA table_info(users)")
+            columns = [row[1] for row in c.fetchall()]
+            if 'preferences' not in columns:
+                c.execute("ALTER TABLE users ADD COLUMN preferences TEXT DEFAULT '{}'")
+            
             conn.commit()
 
     def add_entry(self, content: str):
@@ -207,6 +218,27 @@ class ClipboardDB:
         if row:
             return pwd_context.verify(password, row[0])
         return False
+
+    def get_user_preferences(self, username):
+        with self._lock:
+            conn = self._connect()
+            c = conn.cursor()
+            c.execute("SELECT preferences FROM users WHERE username = ?", (username,))
+            row = c.fetchone()
+            if not row:
+                return {}
+            try:
+                return json.loads(row[0] or "{}")
+            except json.JSONDecodeError:
+                return {}
+
+    def update_user_preferences(self, username, prefs: dict):
+        with self._lock:
+            conn = self._connect()
+            c = conn.cursor()
+            c.execute("UPDATE users SET preferences = ? WHERE username = ?",
+                    (json.dumps(prefs), username))
+            conn.commit()
 
 if __name__ == "__main__":
     db = ClipboardDB()
