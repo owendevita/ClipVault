@@ -1,14 +1,16 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
-const path = require('path')
-const { spawn } = require('child_process');
-const { exec } = require('child_process');
+const { app, BrowserWindow, ipcMain, Tray, Menu } = require('electron');
+const path = require('path');
+const { spawn, exec } = require('child_process');
 const fs = require('fs');
 const http = require('http');
 
-let backendProcess = null; 
+let backendProcess = null;
+let window;
+let tray;
+let isQuitting = false;
 
 function createWindow() {
-    const mainWindow = new BrowserWindow({
+    window = new BrowserWindow({
         width: 550,
         height: 850,
         webPreferences: {
@@ -16,17 +18,21 @@ function createWindow() {
             nodeIntegration: false,
             contextIsolation: true
         }
-    })
+    });
 
-    // Start with login page
-    mainWindow.loadFile(path.join(__dirname, 'login.html'))
-    
-    // Set window title
-    mainWindow.setTitle('ClipVault - Secure Clipboard Manager')
+    window.loadFile(path.join(__dirname, 'login.html'));
+    window.setTitle('ClipVault - Secure Clipboard Manager');
+
+    window.on('close', function (event) {
+        if (!isQuitting) {
+            event.preventDefault();
+            window.hide();
+            event.returnValue = false;
+        }
+    });
 }
 
 function startBackend() {
-    // Use the secure backend batch script
     const isPackaged = app.isPackaged;
     const logPath = path.join(__dirname, '..', 'backend.log');
     const log = (msg) => {
@@ -34,23 +40,20 @@ function startBackend() {
         try { fs.appendFileSync(logPath, line); } catch {}
         console.log(msg);
     };
-    
+
     if (isPackaged) {
-        // In production, look for the backend executable
         const backendExe = path.join(process.resourcesPath, 'backend.exe');
         backendProcess = spawn(backendExe, [], {
             detached: false,
             stdio: 'pipe',
             windowsHide: true,
-            // Force clipboard monitoring ON in packaged builds
             env: { ...process.env, CLIPVAULT_DISABLE_CLIPBOARD: '0' },
         });
     } else {
-        // In development, use direct python execution
         const pythonExe = path.join(__dirname, '..', '.venv', 'Scripts', 'python.exe');
         const mainPy = path.join(__dirname, '..', 'backend', 'main.py');
         log(`Starting secure backend with Python: ${pythonExe} ${mainPy}`);
-        
+
         backendProcess = spawn(pythonExe, [mainPy], {
             detached: false,
             stdio: 'pipe',
@@ -77,10 +80,9 @@ function stopBackend() {
     if (backendProcess) {
         console.log('INFO: Stopping backend...');
         exec(`taskkill /PID ${backendProcess.pid} /T /F`, (err) => {
-      if (err) console.error('Failed to kill backend:', err);
-    });
+            if (err) console.error('Failed to kill backend:', err);
+        });
         backendProcess = null;
-    
     }
 }
 
@@ -89,7 +91,6 @@ function isBackendUp(timeoutMs = 1000) {
         const req = http.request({
             host: '127.0.0.1',
             port: 8000,
-            // Use lightweight healthz to avoid heavy checks that can fail intermittently
             path: '/healthz',
             method: 'GET',
             timeout: timeoutMs,
@@ -105,18 +106,26 @@ function isBackendUp(timeoutMs = 1000) {
     });
 }
 
-// Handle exit app request from renderer
 ipcMain.on('exit-app', () => {
-    stopBackend()
-    app.quit()
-})
-
-
+    isQuitting = true;
+    stopBackend();
+    app.quit();
+});
 
 app.whenReady().then(async () => {
-    createWindow()
+    createWindow();
 
-    // Ensure backend is running; start only if not already up to avoid conflicts
+    tray = new Tray(path.join(__dirname, 'logo.png'));
+    tray.setContextMenu(Menu.buildFromTemplate([
+        { label: 'Show App', click: () => window.show() },
+        { label: 'Quit', click: () => {
+            isQuitting = true;
+            stopBackend();
+            app.quit();
+        }}
+    ]));
+
+    // Ensure backend is running
     let up = await isBackendUp(800);
     if (!up) {
         console.log('Backend not responding on 127.0.0.1:8000, starting it now...');
@@ -132,12 +141,13 @@ app.whenReady().then(async () => {
         console.log('Backend already running at 127.0.0.1:8000');
     }
 
-    app.on('activate', function () {
-        if (BrowserWindow.getAllWindows().length === 0) createWindow()
-    })
-})
+    app.on('activate', () => {
+        if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    });
+});
 
-app.on('window-all-closed', function () {
-    stopBackend()
-    app.quit()
-})
+app.on('window-all-closed', () => {
+    isQuitting = true;
+    stopBackend();
+    app.quit();
+});
