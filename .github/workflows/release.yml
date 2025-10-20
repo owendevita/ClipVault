@@ -4,6 +4,9 @@ on:
   push:
     branches: ["main"]
 
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: windows-latest
@@ -46,11 +49,16 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Push tag to repository
+        shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag ${{ steps.tag.outputs.version }}
-          git push origin ${{ steps.tag.outputs.version }}
+          if git rev-parse "${{ steps.tag.outputs.version }}" >/dev/null 2>&1; then
+            echo "Tag already exists, skipping push."
+          else
+            git tag ${{ steps.tag.outputs.version }}
+            git push origin ${{ steps.tag.outputs.version }}
+          fi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
