@@ -63,6 +63,7 @@ app.whenReady().then(() => {
         {
             label: 'Quit', click: () => {
                 isQuitting = true;
+                stopBackend()
                 app.quit();
             }
         }
