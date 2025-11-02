@@ -10,8 +10,14 @@ const html = fs.readFileSync(path.resolve(__dirname, "../login.html"), "utf8");
 beforeAll(() => {
   const originalError = console.error;
   console.error = (...args) => {
-    const msg = args[0]?.toString() || "";
-    if (msg.includes("Not implemented: navigation") || msg.includes("Network error")) return;
+    const msg = args.map(a => a?.toString() || "").join(" ");
+    if (
+      msg.includes("Not implemented: navigation") ||
+      msg.includes("Network error") ||
+      msg.includes("Login error:")
+    ) {
+      return;
+    }
     originalError(...args);
   };
 });
@@ -28,23 +34,22 @@ let openLoginBtn,
 beforeEach(() => {
   document.documentElement.innerHTML = html.toString();
 
-  global.fetch = jest.fn();
+  global.fetch = jest.fn(() =>
+    Promise.resolve({
+      ok: true,
+      json: async () => ({ access_token: "mock_token" }),
+    })
+  );
 
   Object.defineProperty(window, "localStorage", {
-    value: {
-      setItem: jest.fn(),
-      getItem: jest.fn(),
-      clear: jest.fn(),
-    },
+    value: { setItem: jest.fn(), getItem: jest.fn(), clear: jest.fn() },
     writable: true,
   });
 
   delete window.location;
   window.location = { href: "" };
 
-  jest.isolateModules(() => {
-    require("../login.js");
-  });
+  require("../login.js");
 
   openLoginBtn = document.getElementById("openLogin");
   openSignupBtn = document.getElementById("openSignup");
@@ -164,3 +169,63 @@ test("signup success hides modal after short delay", async () => {
 
   jest.useRealTimers();
 }, 10000);
+
+test("successful login stores token", async () => {
+  document.getElementById("loginUsername").value = "user";
+  document.getElementById("loginPassword").value = "pass";
+
+  global.fetch.mockResolvedValueOnce({
+    ok: true,
+    json: async () => ({ access_token: "mock_token" }),
+  });
+
+  window.backend = { sendAuthToken: jest.fn() };
+  localStorage.setItem = jest.fn();
+
+
+  jest.useFakeTimers();
+  submitLogin.click();
+
+  await Promise.resolve();
+  await Promise.resolve();
+
+  jest.advanceTimersByTime(1500);
+  await Promise.resolve();
+
+  expect(localStorage.setItem).toHaveBeenCalledWith("clipvault_token", "mock_token");
+  expect(localStorage.setItem).toHaveBeenCalledWith("clipvault_username", "user");
+  expect(window.backend.sendAuthToken).toHaveBeenCalledWith("mock_token");
+  expect(loginMessage.className).toContain("success");
+
+  jest.useRealTimers();
+});
+
+test("signup shows error if password is too short", () => {
+  document.getElementById("signupUsername").value = "user";
+  document.getElementById("signupPassword").value = "abc";
+
+  submitSignup.click();
+
+  expect(signupMessage.textContent).toBe("Password must be at least 4 characters long.");
+  expect(signupMessage.className).toContain("error");
+});
+
+test("network error during signup shows error message", async () => {
+  document.getElementById("signupUsername").value = "newuser";
+  document.getElementById("signupPassword").value = "newpass";
+
+  global.fetch.mockRejectedValueOnce(new Error("Network error"));
+
+  submitSignup.click();
+
+  await flushAll();
+
+  expect(signupMessage.textContent).toContain("Network error");
+  expect(signupMessage.className).toContain("error");
+});
+
+test("clicking outside signup modal closes it", () => {
+  openSignupBtn.click();
+  signupModal.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  expect(signupModal.style.display).toBe("none");
+});
