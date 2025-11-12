@@ -227,21 +227,56 @@ function setupEventListeners() {
 }
 
 async function initAfterDomLoaded() {
-    if (!window.backend?.auth?.isLoggedIn()) {
+    const hasBackend = !!window.backend;
+    const hasAuth = !!window.backend?.auth;
+
+    if (hasAuth && !window.backend.auth.isLoggedIn()) {
         const token = localStorage.getItem('clipvault_token');
         if (token && window.backend?.auth?.setToken) {
             window.backend.auth.setToken(token);
         }
-    
+
         if (!window.backend.auth.isLoggedIn()) {
+            window.location.href = "login.html";
+            return;
+        }
+    } else if (!hasAuth) {
+        const token = localStorage.getItem('clipvault_token');
+        if (!token) {
             window.location.href = "login.html";
             return;
         }
     }
 
-    loadUserInfo();
-    await loadSecurityStatus();
-    await loadPreferences();
+    if (hasBackend && hasAuth) {
+        loadUserInfo();
+        await loadSecurityStatus();
+        await loadPreferences();
+    } else {
+        console.warn("Running outside Electron — using placeholder data.");
+
+        const usernameEl = document.getElementById("current-username");
+        if (usernameEl) usernameEl.textContent = "Guest (no backend)";
+
+        const statusElement = document.getElementById("security-status");
+        if (statusElement) {
+            statusElement.innerHTML = `
+                <div class="security-item status-bad">
+                  <strong>Encryption:</strong> N/A
+                </div>
+                <div class="security-item status-bad">
+                  <strong>Clipboard Key:</strong> N/A
+                </div>
+                <div class="security-item status-bad">
+                  <strong>Auth Key:</strong> N/A
+                </div>
+                <div class="security-item">
+                  <strong>Last Updated:</strong> Not available in browser
+                </div>
+            `;
+        }
+    }
+
     setupEventListeners();
 }
 

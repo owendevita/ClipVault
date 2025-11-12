@@ -67,7 +67,10 @@ document.getElementById('submitLogin').addEventListener('click', async () => {
             // Store the JWT token securely
             localStorage.setItem('clipvault_token', data.access_token);
             localStorage.setItem('clipvault_username', username);
-            window.backend.sendAuthToken(data.access_token)
+            
+            if (window.backend?.sendAuthToken) {
+                window.backend.sendAuthToken(data.access_token);
+            }
 
             loginMessage.textContent = "Login successful!";
             loginMessage.className = "message success";
