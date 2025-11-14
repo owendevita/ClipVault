@@ -29,63 +29,78 @@
         </div>
 
         <script>
-            // Check authentication and load user info
             window.onload = async () => {
-                // Check if user is authenticated
-                if (!window.backend.auth.isLoggedIn()) {
+                const currentUserEl = document.getElementById('current-user');
+                const statusElement = document.getElementById('connection-status');
+
+                let username = null;
+                let isLoggedIn = false;
+
+                if (window.backend?.auth) {
+                    isLoggedIn = window.backend.auth.isLoggedIn();
+                    username = window.backend.auth.getUsername();
+                } else {
+                    const token = localStorage.getItem('clipvault_token');
+                    username = localStorage.getItem('clipvault_username');
+                    isLoggedIn = !!token;
+                }
+            
+                if (!isLoggedIn) {
                     window.location.href = 'login.html';
                     return;
                 }
-
-                // Display user info
-                const username = window.backend.auth.getUsername();
-                document.getElementById('current-user').textContent = `Welcome, ${username}!`;
-
-                // Test backend connection and show security status
-                try {
-                    const result = await window.backend.testConnection();
-                    const statusElement = document.getElementById('connection-status');
+            
+                currentUserEl.textContent = `Welcome, ${username || 'User'}!`;
+            
+                if (window.backend?.testConnection) {
+                    try {
+                        const result = await window.backend.testConnection();
                     
-                    if (result.status === 'ok') {
-                        statusElement.innerHTML = `
-                            <div class="status-ok">
-                                <strong>🔒 ClipVault Secure</strong><br>
-                                Backend: Connected<br>
-                                Encryption: ${result.security?.encryption_working ? '✅ Active' : '❌ Error'}<br>
-                                Keys: ${result.security?.keys_available ? '✅ Available' : '❌ Missing'}
-                            </div>
-                        `;
-                        statusElement.style.color = '#28a745';
-                    } else {
-                        statusElement.innerHTML = `<div class="status-error">❌ Backend Error</div>`;
+                        if (result.status === 'ok') {
+                            statusElement.innerHTML = `
+                                <div class="status-ok">
+                                    <strong>🔒 ClipVault Secure</strong><br>
+                                    Backend: Connected<br>
+                                    Encryption: ${result.security?.encryption_working ? '✅ Active' : '❌ Error'}<br>
+                                    Keys: ${result.security?.keys_available ? '✅ Available' : '❌ Missing'}
+                                </div>
+                            `;
+                            statusElement.style.color = '#28a745';
+                        } else {
+                            statusElement.innerHTML = `<div class="status-error">❌ Backend Error</div>`;
+                            statusElement.style.color = '#dc3545';
+                        }
+                    } catch (error) {
+                        console.error('Connection test failed:', error);
+                        statusElement.innerHTML = `<div class="status-error">❌ Could not connect to backend</div>`;
                         statusElement.style.color = '#dc3545';
                     }
-                } catch (error) {
-                    console.error('Connection test failed:', error);
-                    document.getElementById('connection-status').innerHTML = `
-                        <div class="status-error">❌ Could not connect to backend</div>
-                    `;
-                    document.getElementById('connection-status').style.color = '#dc3545';
+                } else {
+                    statusElement.innerHTML = `<div class="status-ok">🔓 Running in browser mode</div>`;
+                    statusElement.style.color = '#6c757d';
                 }
-            }
-
-            // Secure logout function
+            };
+        
             function logout() {
                 if (confirm('Are you sure you want to log out?')) {
-                    window.backend.auth.logout();
+                    if (window.backend?.auth?.logout) {
+                        window.backend.auth.logout();
+                    } else {
+                        localStorage.removeItem('clipvault_token');
+                        localStorage.removeItem('clipvault_username');
+                        window.location.href = 'login.html';
+                    }
                 }
             }
-
-            // Exit the application
+        
             function exitApp() {
-                if (window.backend && window.backend.exitApp) {
+                if (window.backend?.exitApp) {
                     window.backend.exitApp();
                 } else {
                     window.close();
                 }
             }
         </script>
-
-         <script src="renderer.js"></script>
+        <script src="renderer.js"></script>
     </body>
 </html>
