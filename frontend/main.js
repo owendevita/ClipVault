@@ -8,7 +8,6 @@ let backendProcess = null;
 let window;
 let tray;
 let isQuitting = false;
-let backendProcess = null; 
 let userToken = null;
 
 function createWindow() {
@@ -146,6 +145,7 @@ function startClipboardWatcher() {
                         const json = JSON.parse(data);
                         if (json.content && json.content !== lastClipboardContent) {
                             lastClipboardContent = json.content;
+                            
                             new Notification({
                                 title: 'Clipboard Updated',
                                 body: 'New clipboard entry copied!',
@@ -166,12 +166,6 @@ function startClipboardWatcher() {
         }
     }, 1000);
 }
-
-
-    isQuitting = true;
-    stopBackend();
-    app.quit();
-});
 
 app.whenReady().then(async () => {
     createWindow();
