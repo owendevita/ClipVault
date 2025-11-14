@@ -59,24 +59,24 @@
                         if (result.status === 'ok') {
                             statusElement.innerHTML = `
                                 <div class="status-ok">
-                                    <strong>🔒 ClipVault Secure</strong><br>
+                                    <strong>ClipVault Secure</strong><br>
                                     Backend: Connected<br>
-                                    Encryption: ${result.security?.encryption_working ? '✅ Active' : '❌ Error'}<br>
-                                    Keys: ${result.security?.keys_available ? '✅ Available' : '❌ Missing'}
+                                    Encryption: ${result.security?.encryption_working ? 'Active' : 'Error'}<br>
+                                    Keys: ${result.security?.keys_available ? 'Available' : 'Missing'}
                                 </div>
                             `;
                             statusElement.style.color = '#28a745';
                         } else {
-                            statusElement.innerHTML = `<div class="status-error">❌ Backend Error</div>`;
+                            statusElement.innerHTML = `<div class="status-error">Backend Error</div>`;
                             statusElement.style.color = '#dc3545';
                         }
                     } catch (error) {
                         console.error('Connection test failed:', error);
-                        statusElement.innerHTML = `<div class="status-error">❌ Could not connect to backend</div>`;
+                        statusElement.innerHTML = `<div class="status-error">Could not connect to backend</div>`;
                         statusElement.style.color = '#dc3545';
                     }
                 } else {
-                    statusElement.innerHTML = `<div class="status-ok">🔓 Running in browser mode</div>`;
+                    statusElement.innerHTML = `<div class="status-ok">Running in browser mode</div>`;
                     statusElement.style.color = '#6c757d';
                 }
             };
