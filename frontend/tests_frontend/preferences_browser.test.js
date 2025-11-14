@@ -273,3 +273,27 @@ test("initAfterDomLoaded sets token from localStorage if not logged in", async (
 
     localStorage.removeItem("clipvault_token");
 });
+
+test("savePreferences handles updatePreferences rejection", async () => {
+  const { savePreferences } = require("../preferences.js");
+  window.backend.updatePreferences.mockRejectedValueOnce(new Error("fail"));
+
+  await savePreferences();
+  expect(window.alert).toHaveBeenCalledWith(expect.stringContaining("Failed to save preferences"));
+});
+
+test("rotateClipboardKey handles backend error", async () => {
+  const { rotateClipboardKey } = require("../preferences.js");
+  window.backend.rotateClipboardKey.mockRejectedValueOnce(new Error("fail"));
+
+  await rotateClipboardKey();
+  expect(window.alert).toHaveBeenCalledWith(expect.stringContaining("Failed to rotate clipboard key"));
+});
+
+test("rotateJWTSecret handles result.success === false", async () => {
+    const { rotateJWTSecret } = require("../preferences.js");
+    window.backend.rotateJWTSecret.mockResolvedValueOnce({ success: false });
+
+    await rotateJWTSecret();
+    expect(window.alert).toHaveBeenCalledWith("Failed to rotate JWT secret. Please try again.");
+});

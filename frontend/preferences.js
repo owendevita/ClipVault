@@ -1,6 +1,37 @@
 const BACKEND_URL = "http://127.0.0.1:8000";
 const HOTKEY_HELP_TEXT = "Press new key combination...";
 
+if (!window.backend) {
+  window.backend = {
+    getPreferences: async () => {
+      return JSON.parse(localStorage.getItem("clipvault_preferences") || "{}");
+    },
+    updatePreferences: async (prefs) => {
+      localStorage.setItem("clipvault_preferences", JSON.stringify(prefs));
+      return { success: true };
+    },
+    setPreference: async (key, value) => {
+      const prefs = JSON.parse(localStorage.getItem("clipvault_preferences") || "{}");
+      prefs[key] = value;
+      localStorage.setItem("clipvault_preferences", JSON.stringify(prefs));
+      return { success: true };
+    },
+    auth: {
+      isLoggedIn: () => true,
+      getUsername: () => "BrowserMode",
+      setToken: () => {},
+    },
+    getSecurityStatus: async () => ({
+      encryption_working: false,
+      key_storage: {
+        clipboard_key_exists: false,
+        jwt_secret_exists: false,
+      },
+      timestamp: Date.now() / 1000
+    })
+  };
+}
+
 function loadUserInfo() {
     const username = window.backend.auth.getUsername();
     const el = document.getElementById("current-username");
@@ -205,7 +236,21 @@ function setupEventListeners() {
     if (rotateJwtBtn) 
         rotateJwtBtn.addEventListener("click", rotateJWTSecret);
 
-    document.querySelectorAll(".pref-toggle").forEach(toggle => toggle.addEventListener("change", savePreferences));
+    document.querySelectorAll(".pref-toggle").forEach(toggle => {
+      toggle.addEventListener("change", async (e) => {
+          const pref = e.target.dataset.pref;
+          const value = e.target.checked;
+    
+          if (window.backend?.setPreference) {
+              await window.backend.setPreference(pref, value);
+          } else {
+              const prefs = JSON.parse(localStorage.getItem("clipvault_preferences") || "{}");
+              prefs[pref] = value;
+              localStorage.setItem("clipvault_preferences", JSON.stringify(prefs));
+              console.warn(`Mock: setPreference(${pref}, ${value}) — running outside Electron`);
+          }
+      });
+    });
 
     const popup = document.getElementById("hotkey-popup");
     const hotkeyDisplay = document.getElementById("hotkey-display");
@@ -227,21 +272,56 @@ function setupEventListeners() {
 }
 
 async function initAfterDomLoaded() {
-    if (!window.backend?.auth?.isLoggedIn()) {
+    const hasBackend = !!window.backend;
+    const hasAuth = !!window.backend?.auth;
+
+    if (hasAuth && !window.backend.auth.isLoggedIn()) {
         const token = localStorage.getItem('clipvault_token');
         if (token && window.backend?.auth?.setToken) {
             window.backend.auth.setToken(token);
         }
-    
+
         if (!window.backend.auth.isLoggedIn()) {
+            window.location.href = "login.html";
+            return;
+        }
+    } else if (!hasAuth) {
+        const token = localStorage.getItem('clipvault_token');
+        if (!token) {
             window.location.href = "login.html";
             return;
         }
     }
 
-    loadUserInfo();
-    await loadSecurityStatus();
-    await loadPreferences();
+    if (hasBackend && hasAuth) {
+        loadUserInfo();
+        await loadSecurityStatus();
+        await loadPreferences();
+    } else {
+        console.warn("Running outside Electron — using placeholder data.");
+
+        const usernameEl = document.getElementById("current-username");
+        if (usernameEl) usernameEl.textContent = "Guest (no backend)";
+
+        const statusElement = document.getElementById("security-status");
+        if (statusElement) {
+            statusElement.innerHTML = `
+                <div class="security-item status-bad">
+                  <strong>Encryption:</strong> N/A
+                </div>
+                <div class="security-item status-bad">
+                  <strong>Clipboard Key:</strong> N/A
+                </div>
+                <div class="security-item status-bad">
+                  <strong>Auth Key:</strong> N/A
+                </div>
+                <div class="security-item">
+                  <strong>Last Updated:</strong> Not available in browser
+                </div>
+            `;
+        }
+    }
+
     setupEventListeners();
 }
 
