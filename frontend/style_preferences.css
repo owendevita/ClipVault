@@ -316,6 +316,15 @@ input:checked + .slider:before {
     .security-btn {
         margin-left: auto;
         margin-right: auto;
+        width: 1000px;
+    }
+
+    .info-row {
+        width: 1400px;
+    }
+
+    .security-status {
+        width: 1385px;
     }
 }
 
