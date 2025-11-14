@@ -134,3 +134,82 @@ test("saving invalid combo shows message", () => {
   expect(hotkeyDisplay.textContent).toBe("Please press a valid key combo!");
   expect(popup.style.display).toBe("flex");
 });
+
+test("handles modifier-only key (Control) correctly", () => {
+  const btn = hotkeyButtons[0];
+  btn.click();
+
+  prefs.handleKeydown({
+    key: "Control",
+    ctrlKey: true,
+    shiftKey: false,
+    altKey: false,
+    metaKey: false,
+    preventDefault: () => {},
+  });
+
+  expect(hotkeyDisplay.textContent).toBe("CTRL");
+});
+
+test("handles Shift + Alt + letter combo", () => {
+  const btn = hotkeyButtons[0];
+  btn.click();
+
+  prefs.handleKeydown({
+    key: "b",
+    ctrlKey: false,
+    shiftKey: true,
+    altKey: true,
+    metaKey: false,
+    preventDefault: () => {},
+  });
+
+  expect(hotkeyDisplay.textContent).toBe("SHIFT + ALT + B");
+});
+
+test("handles Windows key on non-Mac", () => {
+  const btn = hotkeyButtons[0];
+  btn.click();
+
+  prefs.handleKeydown({
+    key: "z",
+    ctrlKey: false,
+    shiftKey: false,
+    altKey: false,
+    metaKey: true,
+    preventDefault: () => {},
+  });
+
+  expect(hotkeyDisplay.textContent).toBe("WIN + Z");
+});
+
+test("handles Mac CMD key display", () => {
+  prefs = initPreferences({
+    popup,
+    hotkeyDisplay,
+    saveBtn,
+    cancelBtn,
+    hotkeyButtons,
+    isMac: true,
+  });
+
+  hotkeyButtons[0].click();
+
+  prefs.handleKeydown({
+    key: "a",
+    ctrlKey: false,
+    shiftKey: false,
+    altKey: false,
+    metaKey: true,
+    preventDefault: () => {},
+  });
+
+  expect(hotkeyDisplay.textContent).toBe("CMD + A");
+});
+
+test("clicking multiple buttons updates activeButton correctly", () => {
+  hotkeyButtons[0].click();
+  hotkeyButtons[1].click();
+  expect(popup.style.display).toBe("flex");
+  expect(hotkeyDisplay.textContent).toBe("Press new key combination...");
+});
