@@ -3,6 +3,7 @@
 <head>
     <title>ClipVault | User Preferences</title>
     <link rel="stylesheet" href="style_preferences.css">
+    <link rel="stylesheet" href="style_darkmode.css">
 </head>
 <body>
     <div class="header">
@@ -17,7 +18,7 @@
         <div class="user-info-section">
             <h2>User Information</h2>
             <div class="info-row">
-                <span>Logged in as:</span>
+                <span>Logged in as: </span>
                 <span id="current-username">Loading...</span>
             </div>
         </div>
@@ -30,17 +31,16 @@
             </div>
             
             <div class="security-controls">
-                <h3>Security Management</h3>
+                <h2>Security Management</h2>
                 <div class="security-actions">
                     <button id="rotate-clipboard-key" class="security-btn warning">
-                        🔄 Rotate Encryption Key
+                        <img src="rotate.png" class="rotate-icon" alt="">
+                        Rotate Encryption Key
                     </button>
-                    <p class="warning-text">This will make existing encrypted data unreadable!</p>
-                    
                     <button id="rotate-jwt-secret" class="security-btn warning">
-                        🔄 Rotate Authentication Key
+                        <img src="rotate.png" class="rotate-icon" alt="">
+                        Rotate Authentication Key
                     </button>
-                    <p class="warning-text">This will log out all users!</p>
                 </div>
             </div>
         </div>
@@ -56,14 +56,6 @@
                 </label>
             </div>
             <div class="toggle-row">
-                <span>Auto-encrypt Content</span>
-                <label class="switch">
-                    <input type="checkbox" class="pref-toggle" data-pref="autoEncrypt" checked disabled>
-                    <span class="slider"></span>
-                </label>
-                <small style="color: #666; margin-left: 10px;">Always enabled for security</small>
-            </div>
-            <div class="toggle-row">
                 <span>Notify on Clipboard Change</span>
                 <label class="switch">
                     <input type="checkbox" class="pref-toggle" data-pref="notifyOnClipboardChange">
@@ -74,6 +66,13 @@
                 <span>Open ClipVault on Startup</span>
                 <label class="switch">
                     <input type="checkbox" class="pref-toggle" data-pref="openOnStartup">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="toggle-row">
+                <span>Enable Dark Mode</span>
+                <label class="switch">
+                    <input type="checkbox" class="pref-toggle" data-pref="darkMode">
                     <span class="slider"></span>
                 </label>
             </div>
@@ -103,6 +102,7 @@
             </div>
         </div>
     </div>
+    <script src="darkmode.js"></script>
     <script src="preferences.js"></script>
 </body>
 </html>
