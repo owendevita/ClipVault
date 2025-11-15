@@ -237,18 +237,18 @@ function setupEventListeners() {
         rotateJwtBtn.addEventListener("click", rotateJWTSecret);
 
     document.querySelectorAll(".pref-toggle").forEach(toggle => {
-      toggle.addEventListener("change", async (e) => {
-          const pref = e.target.dataset.pref;
-          const value = e.target.checked;
+        toggle.addEventListener("change", async (e) => {
+            const pref = e.target.dataset.pref;
+            const value = e.target.checked;
     
-          if (window.backend?.setPreference) {
-              await window.backend.setPreference(pref, value);
-          } else {
-              const prefs = JSON.parse(localStorage.getItem("clipvault_preferences") || "{}");
-              prefs[pref] = value;
-              localStorage.setItem("clipvault_preferences", JSON.stringify(prefs));
-              console.warn(`Mock: setPreference(${pref}, ${value}) — running outside Electron`);
-          }
+            if (window.backend?.setPreference) {
+                await window.backend.setPreference(pref, value);
+            }
+          
+            if (pref === "darkMode") {
+                if (value) document.body.classList.add("dark-mode");
+                else document.body.classList.remove("dark-mode");
+            }
       });
     });
 

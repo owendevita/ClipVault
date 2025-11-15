@@ -1,0 +1,265 @@
+body.dark-mode {
+  background-color: #242429;
+  color: #e5e5e5;
+}
+
+/* Header styles*/
+
+body.dark-mode .header {
+    background: linear-gradient(
+        to right bottom,
+        #1a1c24 0%,
+        #2b3a66 50%,
+        #4a3b78 100%
+    );
+}
+
+body.dark-mode .header-content p {
+    color: #e5e5e5;
+}
+
+body.dark-mode .back-arrow {
+    color: #e5e5e5;
+}
+
+body.dark-mode .logo {
+    filter: brightness(0) invert(85%);
+}
+
+/* Main page button styles */
+
+body.dark-mode .history-btn,
+body.dark-mode .preferences-btn {
+    background-color: #345a97;
+    color: #e5e5e5;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .history-btn:hover,
+body.dark-mode .preferences-btn:hover {
+    background-color: #3f6db8;
+    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .logout-btn {
+    background-color: #da3e44;
+    color: #e5e5e5;
+}
+
+body.dark-mode .logout-btn:hover {
+    background-color: #ef585e;
+    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Preferences page styles */
+
+body.dark-mode .security-btn.warning {
+    background-color: #d9a73d;
+    color: #1e1e1e;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+}
+
+body.dark-mode .security-btn.warning:hover {
+    background-color: #e8b955;
+    box-shadow: 0 6px 10px rgba(0,0,0,0.5);
+}
+
+body.dark-mode .slider {
+    background-color: #555;
+}
+
+body.dark-mode .slider:before {
+    background-color: #e5e5e5;
+}
+
+body.dark-mode input:checked + .slider {
+    background-color: #3f6db8;
+}
+
+body.dark-mode input:checked + .slider:before {
+    background-color: white;
+}
+
+body.dark-mode .hotkey-btn {
+    background-color: #e5e5e5;
+    color: black;
+    border: 1px solid #444;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .hotkey-btn:hover {
+    background-color: #b6b6b6;
+}
+
+body.dark-mode .info-row,
+body.dark-mode .security-status {
+    background-color: #1e1f22;
+    border: 1px solid #2c2d31;
+    color: #e5e5e5;
+}
+
+body.dark-mode .security-status p {
+    background-color: #151518;
+    border: 1px solid #2a2b2e;
+    color: #dddddd;
+}
+
+body.dark-mode .main h2 {
+    color: #f0f0f0;
+}
+
+body.dark-mode .security-item {
+    border-bottom: 1px solid #444;
+}
+
+body.dark-mode .status-good {
+    color: #6bd47f;
+}
+
+body.dark-mode .status-bad {
+    color: #da3e44;
+}
+
+body.dark-mode .info-row span {
+    color: #e5e5e5;
+}
+
+body.dark-mode .popup-overlay {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+body.dark-mode .popup-box {
+    background-color: #1e1f22;
+    color: #e5e5e5;
+    border-color: #2c2d31;
+}
+
+body.dark-mode .popup-box h3 {
+    color: #f0f0f0;
+}
+
+body.dark-mode #hotkey-display {
+    background-color: #1e1f22;
+    color: #e5e5e5;
+    border-color: #2c2d31;
+}
+
+body.dark-mode .popup-actions button {
+    background-color: #345a97;
+    color: #e5e5e5;
+}
+
+body.dark-mode .popup-actions button:hover {
+    background-color: #3f6db8;
+}
+
+body.dark-mode #cancel-hotkey-btn {
+    background-color: #da3e44;
+}
+
+body.dark-mode #cancel-hotkey-btn:hover {
+    background-color: #ef585e;
+}
+
+/* Clipboard History Page Styles */
+
+body.dark-mode .clear-history-btn {
+    background-color: #e5e5e5;
+    color: black;
+    border: 1px solid #444;
+}
+
+body.dark-mode .clear-history-btn:hover {
+    background-color: #b6b6b6;
+}
+
+body.dark-mode .delete-btn img {
+    content: url('./bin_darkmode.png');
+}
+
+body.dark-mode .entry-btn {
+    color: #e5e5e5;
+}
+
+/* Login Page Styles */
+
+body.dark-mode .login-container {
+    background: linear-gradient(
+        to right bottom,
+        #1a1c24 0%,
+        #2b3a66 50%,
+        #4a3b78 100%
+    );
+}
+
+body.dark-mode .app-title, 
+body.dark-mode .app-subtitle {
+    color: #e5e5e5 !important;
+}
+
+body.dark-mode .main-logo {
+    filter: brightness(0) invert(85%);
+}
+
+body.dark-mode .main-login-btn,
+body.dark-mode .main-signup-btn {
+    color: #e5e5e5;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .main-login-btn{
+    background-color: #3f6db8;
+}
+
+body.dark-mode .main-signup-btn{
+    background-color: #6d7393;;
+}
+
+body.dark-mode .main-login-btn:hover,
+body.dark-mode .main-signup-btn:hover{
+    transform: translateY(-2px);
+    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .main-login-btn:hover {
+    background-color: #335495;
+}
+
+body.dark-mode .main-signup-btn:hover {
+    background-color: #585c74;
+}
+
+body.dark-mode .modal-content,
+body.dark-mode .modal-content input,
+body.dark-mode .modal-content button {
+    border-radius: 8px;
+    color: #e5e5e5;
+}
+
+body.dark-mode .modal-content {
+    background-color: #1e1f22;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+}
+
+body.dark-mode .modal-content h2 {
+    color: #f0f0f0;
+}
+
+body.dark-mode .modal-content input {
+    background-color: #2a2b30;
+    border: 1px solid #444;
+}
+
+body.dark-mode .modal-content input::placeholder {
+    color: #bbbbbb;
+}
+
+body.dark-mode .modal-content button {
+    background-color: #3f6db8;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+}
+
+body.dark-mode .modal-content button:hover {
+    background-color: #335495;
+    box-shadow: 0 6px 10px rgba(0,0,0,0.5);
+}
