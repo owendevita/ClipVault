@@ -19,7 +19,8 @@ Backend (FastAPI):
 
 ```powershell
 cd backend
-python -m venv .venv; .\.venv\Scripts\Activate.ps1
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 python main.py
 ```
@@ -35,11 +36,16 @@ npm start
 Tests:
 
 ```powershell
-# backend
+# Backend tests (64 comprehensive tests)
 cd backend
-python -m pytest -q
+# Activate virtual environment first
+.\..venv\Scripts\Activate.ps1
+# Run all tests
+python -m pytest tests/ -v
+# With coverage
+python -m pytest tests/ --cov=. --cov-report=term-missing
 
-# frontend
+# Frontend tests
 cd ../frontend
 npm test
 ```
