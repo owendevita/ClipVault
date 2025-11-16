@@ -1,6 +1,37 @@
 const BACKEND_URL = "http://127.0.0.1:8000";
 const HOTKEY_HELP_TEXT = "Press new key combination...";
 
+if (!window.backend) {
+  window.backend = {
+    getPreferences: async () => {
+      return JSON.parse(localStorage.getItem("clipvault_preferences") || "{}");
+    },
+    updatePreferences: async (prefs) => {
+      localStorage.setItem("clipvault_preferences", JSON.stringify(prefs));
+      return { success: true };
+    },
+    setPreference: async (key, value) => {
+      const prefs = JSON.parse(localStorage.getItem("clipvault_preferences") || "{}");
+      prefs[key] = value;
+      localStorage.setItem("clipvault_preferences", JSON.stringify(prefs));
+      return { success: true };
+    },
+    auth: {
+      isLoggedIn: () => true,
+      getUsername: () => "BrowserMode",
+      setToken: () => {},
+    },
+    getSecurityStatus: async () => ({
+      encryption_working: false,
+      key_storage: {
+        clipboard_key_exists: false,
+        jwt_secret_exists: false,
+      },
+      timestamp: Date.now() / 1000
+    })
+  };
+}
+
 function loadUserInfo() {
     const username = window.backend.auth.getUsername();
     const el = document.getElementById("current-username");
@@ -205,7 +236,21 @@ function setupEventListeners() {
     if (rotateJwtBtn) 
         rotateJwtBtn.addEventListener("click", rotateJWTSecret);
 
-    document.querySelectorAll(".pref-toggle").forEach(toggle => toggle.addEventListener("change", savePreferences));
+    document.querySelectorAll(".pref-toggle").forEach(toggle => {
+        toggle.addEventListener("change", async (e) => {
+            const pref = e.target.dataset.pref;
+            const value = e.target.checked;
+    
+            if (window.backend?.setPreference) {
+                await window.backend.setPreference(pref, value);
+            }
+          
+            if (pref === "darkMode") {
+                if (value) document.body.classList.add("dark-mode");
+                else document.body.classList.remove("dark-mode");
+            }
+      });
+    });
 
     const popup = document.getElementById("hotkey-popup");
     const hotkeyDisplay = document.getElementById("hotkey-display");

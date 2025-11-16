@@ -3,6 +3,7 @@
 <head>
     <title>ClipVault | User Preferences</title>
     <link rel="stylesheet" href="style_preferences.css">
+    <link rel="stylesheet" href="style_darkmode.css">
 </head>
 <body>
     <div class="header">
@@ -68,6 +69,13 @@
                     <span class="slider"></span>
                 </label>
             </div>
+            <div class="toggle-row">
+                <span>Enable Dark Mode</span>
+                <label class="switch">
+                    <input type="checkbox" class="pref-toggle" data-pref="darkMode">
+                    <span class="slider"></span>
+                </label>
+            </div>
         </div>
 
         <!-- Hotkeys Section -->
@@ -94,6 +102,7 @@
             </div>
         </div>
     </div>
+    <script src="darkmode.js"></script>
     <script src="preferences.js"></script>
 </body>
 </html>
