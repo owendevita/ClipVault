@@ -302,10 +302,7 @@ async def get_clipboard(user: str = Depends(get_current_user)):
     """Get current clipboard (auth)."""
     try:
         content = clipboard.get_clipboard_content()
-        if content:
-            with SecureString(content) as secure_content:
-                db.add_entry(secure_content)
-        
+    
         logger.info(f"User {user} accessed current clipboard content")
         return {"content": content, "user": user}
     except Exception as e:

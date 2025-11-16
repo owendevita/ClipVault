@@ -1,5 +1,5 @@
 import pyperclip
-from threading import Thread
+from threading import Thread, Lock
 import time
 
 class ClipboardManager:
@@ -9,18 +9,25 @@ class ClipboardManager:
         self.monitor_thread = Thread(target=self._monitor_clipboard)
         self.monitor_thread.daemon = True
         self.db = None
+        self.lock = Lock()
 
     def _monitor_clipboard(self):
-        """Monitor clipboard for changes"""
         while self.running:
             try:
-                current_content = pyperclip.paste()
-                if current_content != self.last_copied and current_content.strip():
-                    self.last_copied = current_content
-                    if self.db:
-                        self.db.add_entry(current_content)
+                with self.lock:
+                    current_content = pyperclip.paste().strip()
+                    if not current_content:
+                        continue
+                    if current_content != self.last_copied:
+                        print("current: ", current_content)
+                        print("last: ", self.last_copied)
+                        self.last_copied = current_content
+                        
+                        if self.db:
+                            print("Adding to DB.")
+                            self.db.add_entry(current_content)
             except Exception as e:
-                print(f"Error monitoring clipboard: {str(e)}")
+                print(f"Error monitoring clipboard: {e}")
             time.sleep(1)
 
     def get_clipboard_content(self):
@@ -32,12 +39,13 @@ class ClipboardManager:
             return None
 
     def set_clipboard_content(self, content: str):
-        """Set clipboard content"""
         try:
-            pyperclip.copy(content)
+            with self.lock:
+                pyperclip.copy(content)
+                self.last_copied = content.strip()
             return True
         except Exception as e:
-            print(f"Error setting clipboard: {str(e)}")
+            print(f"Error setting clipboard: {e}")
             return False
 
     def start_monitoring(self, db):
