@@ -24,24 +24,35 @@
         </div>
         <button class="clear-history-btn">Clear All History</button>
     </div>
-
     <script>
-        // Check authentication on page load
-        window.addEventListener('DOMContentLoaded', () => {
-            if (!window.backend.auth.isLoggedIn()) {
+        window.addEventListener('DOMContentLoaded', async () => {
+            let isLoggedIn = false;
+
+            if (window.backend?.auth) {
+                isLoggedIn = window.backend.auth.isLoggedIn();
+            } else {
+                const token = localStorage.getItem('clipvault_token');
+                isLoggedIn = !!token;
+            }
+
+            if (!isLoggedIn) {
                 window.location.href = 'login.html';
                 return;
             }
-            
+
             loadHistory();
-            
+
             document.querySelector(".clear-history-btn").addEventListener("click", () => {
                 clearHistory();
             });
-
         });
 
         async function checkHealth() {
+            if (!window.backend?.testConnection) {
+                console.warn("Running in browser mode — skipping backend health check.");
+                return true;
+            }
+
             try {
                 const data = await window.backend.testConnection();
                 return data.status === "ok";
@@ -55,7 +66,6 @@
             if (!isoString) return "Unknown";
             const date = new Date(isoString);
             return date.toLocaleString(undefined, {
-                //year: "numeric",  // omit year for brevity
                 month: "short",
                 day: "2-digit",
                 hour: "2-digit",
@@ -72,26 +82,33 @@
                 return;
             }
 
+            const container = document.getElementById("entries-container");
+
+            if (!window.backend?.getHistory) {
+                container.innerHTML = '<p style="text-align: center; color: #666; margin: 20px;">No backend connected — history unavailable in browser mode.</p>';
+                return;
+            }
+
             try {
                 const response = await window.backend.getHistory(20);
-                // The backend now returns {history: [...], user: "username"}
-                const history = response.history || response; // Handle both formats
-                const container = document.getElementById("entries-container");
+                const history = response.history || response;
                 container.innerHTML = "";
 
                 if (!history || history.length === 0) {
-                    // Check if there are encrypted entries that cannot be decrypted (key rotation scenario)
                     try {
-                        const raw = await window.backend.rawHistory(5);
-                        const count = (raw && raw.raw_history && raw.raw_history.length) ? raw.raw_history.length : 0;
+                        const raw = await window.backend.rawHistory?.(5);
+                        const count = (raw && raw.raw_history?.length) || 0;
                         if (count > 0) {
-                            container.innerHTML = '<p style="text-align: center; color: #666; margin: 20px;">No decryptable history found. There are ' + count + ' encrypted items that cannot be decrypted (likely due to key rotation). You can add new entries or clear all history.</p>';
+                            container.innerHTML = `<p style="text-align: center; color: #666; margin: 20px;">
+                                No decryptable history found. There are ${count} encrypted items that cannot be decrypted.
+                                You can add new entries or clear all history.
+                            </p>`;
                         } else {
-                            container.innerHTML = '<p style="text-align: center; color: #666; margin: 20px;">No clipboard history found.</p>';
+                            container.innerHTML = `<p style="text-align: center; color: #666; margin: 20px;">No clipboard history found.</p>`;
                         }
                         return;
                     } catch {
-                        container.innerHTML = '<p style="text-align: center; color: #666; margin: 20px;">No clipboard history found.</p>';
+                        container.innerHTML = `<p style="text-align: center; color: #666; margin: 20px;">No clipboard history found.</p>`;
                         return;
                     }
                 }
@@ -99,28 +116,32 @@
                 history.forEach((entry, idx) => {
                     const row = document.createElement("div");
                     row.className = "entry-row";
-                                
+
                     const btn = document.createElement("button");
                     btn.className = "entry-btn";
                     btn.dataset.enabled = "false";
                     btn.dataset.id = idx;
                     btn.textContent = "Click to reveal";
-                                
+
                     const time = document.createElement("p");
                     time.className = "entry-modified-time";
                     time.textContent = formatDate(entry.timestamp) || "Unknown";
-                                
+
                     const deleteBtn = document.createElement("button");
                     deleteBtn.className = "delete-btn";
-                                
+
                     const deleteIcon = document.createElement("img");
-                    deleteIcon.src = "./bin.png"; 
+                    deleteIcon.src = "./bin.png";
                     deleteIcon.alt = "Delete";
-                                
                     deleteBtn.appendChild(deleteIcon);
-                                
+
                     deleteBtn.addEventListener("click", async () => {
                         if (!confirm("Delete this entry?")) return;
+                        if (!window.backend?.deleteHistoryEntry) {
+                            alert("Cannot delete — backend unavailable in browser mode.");
+                            return;
+                        }
+
                         try {
                             await window.backend.deleteHistoryEntry(entry.id);
                             row.remove();
@@ -129,7 +150,7 @@
                             alert("Failed to delete entry. Please try again.");
                         }
                     });
-                
+
                     btn.addEventListener("click", () => {
                         if (btn.dataset.enabled === "false") {
                             btn.dataset.enabled = "true";
@@ -139,22 +160,19 @@
                             btn.textContent = "Click to reveal";
                         }
                     });
-                
+
                     row.appendChild(btn);
                     row.appendChild(time);
                     row.appendChild(deleteBtn);
                     container.appendChild(row);
                 });
-
             } catch (err) {
                 console.error("Error loading history:", err);
             }
         }
 
         async function clearHistory() {
-            if (!confirm("Are you sure you want to clear all clipboard history? This action cannot be undone.")) {
-                return;
-            }
+            if (!confirm("Are you sure you want to clear all clipboard history? This action cannot be undone.")) return;
 
             const healthy = await checkHealth();
             if (!healthy) {
@@ -162,14 +180,16 @@
                 return;
             }
 
+            if (!window.backend?.clearHistory) {
+                alert("Cannot clear history — backend unavailable in browser mode.");
+                return;
+            }
+
             try {
                 await window.backend.clearHistory();
-                document.getElementById("entries-container").innerHTML = '<p style="text-align: center; color: #28a745; margin: 20px;">✅ History cleared successfully!</p>';
-                
-                // Reload history after a short delay
-                setTimeout(() => {
-                    loadHistory();
-                }, 2000);
+                document.getElementById("entries-container").innerHTML = `
+                    <p style="text-align: center; color: #28a745; margin: 20px;">✅ History cleared successfully!</p>`;
+                setTimeout(() => loadHistory(), 2000);
             } catch (err) {
                 console.error("Error clearing history:", err);
                 alert("Failed to clear history. Please try again.");
