@@ -71,7 +71,7 @@ test("Escape key hides popup", () => {
   expect(popup.style.display).toBe("none");
 });
 
-test("saving new hotkey updates button text", () => {
+test("saving new hotkey updates button text", async () => {
   const btn = hotkeyButtons[0];
 
   btn.click();
@@ -88,6 +88,7 @@ test("saving new hotkey updates button text", () => {
   saveBtn.click();
 
   expect(btn.textContent).toBe("CTRL + X");
+  await new Promise(process.nextTick);
   expect(popup.style.display).toBe("none");
 });
 
