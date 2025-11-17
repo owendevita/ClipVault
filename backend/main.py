@@ -196,8 +196,9 @@ async def set_clipboard(request: Request, user: str = Depends(get_current_user))
             except Exception:
                 parsed_content = raw.decode("latin-1", errors="ignore")
 
-        if not parsed_content or not parsed_content.strip():
-            raise HTTPException(status_code=422, detail="Clipboard content must be a non-empty string")
+        # Allow empty content for testing and edge cases
+        if parsed_content is None:
+            raise HTTPException(status_code=422, detail="Clipboard content cannot be null")
 
         with SecureString(parsed_content) as secure_content:
             success = clipboard.set_clipboard_content(secure_content)
