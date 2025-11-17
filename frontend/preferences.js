@@ -10,12 +10,6 @@ if (!window.backend) {
       localStorage.setItem("clipvault_preferences", JSON.stringify(prefs));
       return { success: true };
     },
-    setPreference: async (key, value) => {
-      const prefs = JSON.parse(localStorage.getItem("clipvault_preferences") || "{}");
-      prefs[key] = value;
-      localStorage.setItem("clipvault_preferences", JSON.stringify(prefs));
-      return { success: true };
-    },
     auth: {
       isLoggedIn: () => true,
       getUsername: () => "BrowserMode",
@@ -108,9 +102,9 @@ async function savePreferences() {
     try {
         const response = await window.backend.updatePreferences(preferences);
         if (response?.success) {
-          alert("Preferences saved successfully!");
+          console.log("Preferences saved successfully!");
         } else {
-          alert("Preferences updated, but no confirmation received.");
+          alert("Attempted to update preferences, but the server did not respond.");
         }
     } catch (error) {
         console.error("Failed to update preferences:", error);
@@ -191,7 +185,7 @@ function initPreferences({ popup, hotkeyDisplay, saveBtn, cancelBtn, hotkeyButto
         });
     });
 
-    saveBtn.addEventListener("click", () => {
+    saveBtn.addEventListener("click", async () => {
         const comboString = currentCombo.join(" + ");
         if (!comboString) {
             hotkeyDisplay.textContent = "Please press a valid key combo!";
@@ -205,6 +199,7 @@ function initPreferences({ popup, hotkeyDisplay, saveBtn, cancelBtn, hotkeyButto
         if (activeButton) {
             activeButton.textContent = comboString;
             savedCombos.add(comboString);
+            await savePreferences();
         }
         popup.style.display = "none";
         activeButton = null;
@@ -240,15 +235,17 @@ function setupEventListeners() {
         toggle.addEventListener("change", async (e) => {
             const pref = e.target.dataset.pref;
             const value = e.target.checked;
-    
-            if (window.backend?.setPreference) {
-                await window.backend.setPreference(pref, value);
-            }
+            
+            console.log("pref: ", pref);
+            console.log("value:", value);
           
             if (pref === "darkMode") {
                 if (value) document.body.classList.add("dark-mode");
                 else document.body.classList.remove("dark-mode");
             }
+
+            await savePreferences();
+            
       });
     });
 

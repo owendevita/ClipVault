@@ -371,6 +371,7 @@ async def get_raw_history(limit: int = 10, user: str = Depends(get_current_user)
 @app.get("/preferences")
 async def get_preferences(user: str = Depends(get_current_user)):
     prefs = db.get_user_preferences(user)
+    print(prefs)
     return prefs
 
 @app.post("/preferences")
@@ -380,7 +381,7 @@ async def update_preferences(preferences: dict, user: str = Depends(get_current_
     try:
         result = db.update_user_preferences(user, preferences)
         logger.info(f"Update result: {result}")
-        return {"status": "ok"}
+        return {"status": "ok", "success": True}
     except Exception as e:
         logger.error(f"Failed to update preferences for {user}: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to update preferences")
