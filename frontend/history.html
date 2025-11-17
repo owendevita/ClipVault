@@ -27,6 +27,9 @@
     </div>
     <script src="darkmode.js"></script>
     <script>
+        let lastKnownTimestamp = null;
+        let autoRefreshInterval = null;
+
         window.addEventListener('DOMContentLoaded', async () => {
             let isLoggedIn = false;
 
@@ -42,12 +45,55 @@
                 return;
             }
 
-            loadHistory();
+            await loadHistory();
+
+            // Start auto-refresh every 3 seconds
+            startAutoRefresh();
 
             document.querySelector(".clear-history-btn").addEventListener("click", () => {
                 clearHistory();
             });
         });
+
+        // Clean up auto-refresh when leaving the page
+        window.addEventListener('beforeunload', () => {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+        });
+
+        function startAutoRefresh() {
+            console.log('Starting auto-refresh with interval every 3 seconds');
+            autoRefreshInterval = setInterval(async () => {
+                try {
+                    console.log('Auto-refresh check - last timestamp:', lastKnownTimestamp);
+                    if (window.backend?.getHistory) {
+                        const response = await window.backend.getHistory(20);
+                        const history = response.history || response;
+                        console.log('Got history response:', history ? history.length : 0, 'entries');
+                        
+                        if (history && history.length > 0) {
+                            // Check if the newest entry has a different timestamp
+                            const newestTimestamp = history[0].timestamp;
+                            console.log('Newest timestamp:', newestTimestamp);
+                            
+                            if (lastKnownTimestamp === null || newestTimestamp !== lastKnownTimestamp) {
+                                console.log('New entries detected! Refreshing display...');
+                                await loadHistory();
+                            } else {
+                                console.log('No new entries detected');
+                            }
+                        } else {
+                            console.log('No history entries found');
+                        }
+                    } else {
+                        console.log('Backend getHistory not available');
+                    }
+                } catch (error) {
+                    console.error('Auto-refresh error:', error);
+                }
+            }, 3000); // Check every 3 seconds
+        }
 
         async function checkHealth() {
             if (!window.backend?.testConnection) {
@@ -78,6 +124,7 @@
         }
 
         async function loadHistory() {
+            console.log('loadHistory called');
             const healthy = await checkHealth();
             if (!healthy) {
                 alert("Backend unavailable. Please ensure the server is running.");
@@ -168,6 +215,12 @@
                     row.appendChild(deleteBtn);
                     container.appendChild(row);
                 });
+
+                // Update the last known timestamp for auto-refresh
+                if (history.length > 0) {
+                    lastKnownTimestamp = history[0].timestamp;
+                    console.log('Updated lastKnownTimestamp to:', lastKnownTimestamp);
+                }
             } catch (err) {
                 console.error("Error loading history:", err);
             }
